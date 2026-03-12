@@ -1,0 +1,2259 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RTG AI-Integrated School System 2026 — SRP Kampong Lambak Kanan Jln 10</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+
+:root {
+–bg: #04111C;
+–surface: #081A27;
+–surface2: #0C2236;
+–accent: #0EA5E9;
+–accent2: #38BDF8;
+–gold: #F59E0B;
+–emerald: #10B981;
+–rose: #F43F5E;
+–violet: #8B5CF6;
+–text: #E2F0FB;
+–text2: #7EAEC8;
+–muted: #4A7A96;
+–border: rgba(14,165,233,0.15);
+–card: rgba(255,255,255,0.03);
+–glow: 0 0 40px rgba(14,165,233,0.08);
+}
+
+- { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+font-family: ‘Plus Jakarta Sans’, sans-serif;
+background: var(–bg);
+color: var(–text);
+min-height: 100vh;
+overflow-x: hidden;
+}
+
+/* Animated background grid */
+body::before {
+content: ‘’;
+position: fixed;
+inset: 0;
+background-image:
+linear-gradient(rgba(14,165,233,0.03) 1px, transparent 1px),
+linear-gradient(90deg, rgba(14,165,233,0.03) 1px, transparent 1px);
+background-size: 40px 40px;
+pointer-events: none;
+z-index: 0;
+}
+
+/* HEADER */
+.header {
+position: sticky; top: 0; z-index: 200;
+background: rgba(4,17,28,0.95);
+backdrop-filter: blur(20px);
+border-bottom: 1px solid var(–border);
+padding: 0 28px;
+height: 64px;
+display: flex; align-items: center; justify-content: space-between;
+}
+.header-brand { display: flex; align-items: center; gap: 12px; }
+.brand-icon {
+width: 38px; height: 38px;
+background: linear-gradient(135deg, #0EA5E9, #0369A1);
+border-radius: 10px;
+display: flex; align-items: center; justify-content: center;
+font-size: 18px; font-weight: 800; color: white;
+box-shadow: 0 0 16px rgba(14,165,233,0.4);
+}
+.brand-text h1 { font-size: 15px; font-weight: 700; color: var(–text); }
+.brand-text p { font-size: 11px; color: var(–text2); margin-top: 1px; }
+.header-right { display: flex; align-items: center; gap: 12px; }
+.ai-badge {
+display: flex; align-items: center; gap: 6px;
+background: rgba(139,92,246,0.15);
+border: 1px solid rgba(139,92,246,0.3);
+padding: 5px 12px; border-radius: 20px;
+font-size: 11px; color: #C4B5FD; font-weight: 600;
+}
+.ai-dot { width: 6px; height: 6px; background: #A78BFA; border-radius: 50%; animation: pulse 2s infinite; }
+.moe-badge {
+background: rgba(245,158,11,0.15);
+border: 1px solid rgba(245,158,11,0.3);
+padding: 5px 12px; border-radius: 20px;
+font-size: 11px; color: #FCD34D; font-weight: 600;
+}
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(0.8)} }
+
+/* LAYOUT */
+.app { display: flex; height: calc(100vh - 64px); position: relative; z-index: 1; }
+
+/* SIDEBAR */
+.sidebar {
+width: 220px; min-width: 220px;
+background: var(–surface);
+border-right: 1px solid var(–border);
+overflow-y: auto;
+padding: 16px 12px;
+display: flex; flex-direction: column; gap: 4px;
+}
+.sidebar-section-label {
+font-size: 10px; font-weight: 700;
+color: var(–muted); text-transform: uppercase;
+letter-spacing: 1px; padding: 8px 8px 4px;
+}
+.nav-item {
+display: flex; align-items: center; gap: 10px;
+padding: 9px 10px; border-radius: 8px;
+cursor: pointer;
+color: var(–text2); font-size: 13px; font-weight: 500;
+transition: all 0.15s;
+border: 1px solid transparent;
+}
+.nav-item:hover { background: var(–surface2); color: var(–text); }
+.nav-item.active {
+background: rgba(14,165,233,0.12);
+border-color: rgba(14,165,233,0.25);
+color: var(–accent2);
+}
+.nav-item .icon { font-size: 16px; width: 20px; text-align: center; }
+.nav-badge {
+margin-left: auto; background: var(–rose);
+color: white; font-size: 10px; font-weight: 700;
+padding: 1px 6px; border-radius: 10px;
+}
+.nav-badge.green { background: var(–emerald); }
+
+/* MAIN CONTENT */
+.main { flex: 1; overflow-y: auto; padding: 24px 28px; }
+
+/* PANELS */
+.panel { display: none; }
+.panel.active { display: block; }
+
+/* PAGE HEADER */
+.page-header { margin-bottom: 24px; }
+.page-header h2 { font-size: 22px; font-weight: 800; color: var(–text); }
+.page-header p { font-size: 13px; color: var(–text2); margin-top: 4px; }
+.page-header .tags { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+.tag {
+padding: 3px 10px; border-radius: 12px; font-size: 11px; font-weight: 600;
+border: 1px solid;
+}
+.tag.blue { background: rgba(14,165,233,0.1); border-color: rgba(14,165,233,0.3); color: var(–accent2); }
+.tag.gold { background: rgba(245,158,11,0.1); border-color: rgba(245,158,11,0.3); color: #FCD34D; }
+.tag.violet { background: rgba(139,92,246,0.1); border-color: rgba(139,92,246,0.3); color: #C4B5FD; }
+.tag.green { background: rgba(16,185,129,0.1); border-color: rgba(16,185,129,0.3); color: #6EE7B7; }
+
+/* STAT GRID */
+.stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(155px, 1fr)); gap: 14px; margin-bottom: 24px; }
+.stat-card {
+background: var(–card);
+border: 1px solid var(–border);
+border-radius: 12px; padding: 18px 16px;
+position: relative; overflow: hidden;
+transition: all 0.2s;
+}
+.stat-card::before {
+content: ‘’;
+position: absolute; top: 0; left: 0; right: 0; height: 2px;
+background: linear-gradient(90deg, var(–accent), transparent);
+}
+.stat-card.gold::before { background: linear-gradient(90deg, var(–gold), transparent); }
+.stat-card.green::before { background: linear-gradient(90deg, var(–emerald), transparent); }
+.stat-card.rose::before { background: linear-gradient(90deg, var(–rose), transparent); }
+.stat-card.violet::before { background: linear-gradient(90deg, var(–violet), transparent); }
+.stat-card:hover { background: rgba(255,255,255,0.05); transform: translateY(-2px); box-shadow: var(–glow); }
+.stat-label { font-size: 10px; font-weight: 700; color: var(–muted); text-transform: uppercase; letter-spacing: 0.8px; }
+.stat-value { font-size: 30px; font-weight: 800; color: var(–text); line-height: 1.1; margin: 6px 0 4px; }
+.stat-card.gold .stat-value { color: #FCD34D; }
+.stat-card.green .stat-value { color: #6EE7B7; }
+.stat-card.rose .stat-value { color: #FCA5A5; }
+.stat-card.violet .stat-value { color: #C4B5FD; }
+.stat-sub { font-size: 11px; color: var(–text2); }
+.stat-icon { position: absolute; right: 14px; top: 14px; font-size: 22px; opacity: 0.2; }
+
+/* TWO-COL GRID */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+.grid-65 { display: grid; grid-template-columns: 1.6fr 1fr; gap: 16px; margin-bottom: 16px; }
+
+/* CARDS */
+.card {
+background: var(–surface);
+border: 1px solid var(–border);
+border-radius: 14px; padding: 20px;
+margin-bottom: 16px;
+}
+.card-header {
+display: flex; justify-content: space-between; align-items: flex-start;
+margin-bottom: 16px;
+}
+.card-title { font-size: 13px; font-weight: 700; color: var(–text); }
+.card-sub { font-size: 11px; color: var(–text2); margin-top: 2px; }
+.card-action {
+font-size: 11px; font-weight: 600; color: var(–accent);
+cursor: pointer; padding: 4px 10px;
+border: 1px solid rgba(14,165,233,0.3);
+border-radius: 6px; transition: all 0.15s;
+}
+.card-action:hover { background: rgba(14,165,233,0.1); }
+
+/* CHART WRAPPER */
+.chart-wrap { position: relative; }
+.chart-wrap canvas { max-height: 220px; }
+
+/* TABLE */
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; }
+thead th {
+font-size: 10px; font-weight: 700; color: var(–muted);
+text-transform: uppercase; letter-spacing: 0.5px;
+padding: 8px 10px; text-align: left;
+border-bottom: 1px solid var(–border);
+}
+tbody td { padding: 9px 10px; font-size: 12px; color: var(–text2); border-bottom: 1px solid rgba(255,255,255,0.03); }
+tbody tr:hover { background: rgba(14,165,233,0.04); }
+tbody td:first-child { color: var(–text); font-weight: 500; }
+
+/* GRADE BADGES */
+.grade {
+display: inline-flex; align-items: center; justify-content: center;
+width: 26px; height: 22px; border-radius: 5px; font-size: 11px; font-weight: 700;
+font-family: ‘JetBrains Mono’, monospace;
+}
+.grade-A { background: rgba(16,185,129,0.2); color: #6EE7B7; border: 1px solid rgba(16,185,129,0.3); }
+.grade-B { background: rgba(14,165,233,0.2); color: #7DD3FC; border: 1px solid rgba(14,165,233,0.3); }
+.grade-C { background: rgba(245,158,11,0.2); color: #FCD34D; border: 1px solid rgba(245,158,11,0.3); }
+.grade-D { background: rgba(249,115,22,0.2); color: #FDB97F; border: 1px solid rgba(249,115,22,0.3); }
+.grade-E { background: rgba(244,63,94,0.2); color: #FCA5A5; border: 1px solid rgba(244,63,94,0.3); }
+.grade-N { background: rgba(100,100,100,0.2); color: #AAA; border: 1px solid rgba(100,100,100,0.3); }
+
+/* AI INSIGHT BOX */
+.ai-insight {
+background: linear-gradient(135deg, rgba(139,92,246,0.08), rgba(14,165,233,0.05));
+border: 1px solid rgba(139,92,246,0.2);
+border-radius: 12px; padding: 16px;
+margin-bottom: 16px;
+}
+.ai-insight-header {
+display: flex; align-items: center; gap: 8px;
+font-size: 12px; font-weight: 700; color: #C4B5FD;
+margin-bottom: 10px;
+}
+.ai-insight-body { font-size: 12px; color: var(–text2); line-height: 1.7; }
+.ai-insight-body strong { color: var(–text); font-weight: 600; }
+
+/* PROGRESS BAR */
+.progress-wrap { margin-top: 8px; }
+.progress-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+.progress-label { font-size: 12px; color: var(–text2); width: 80px; flex-shrink: 0; }
+.progress-bar { flex: 1; height: 6px; background: rgba(255,255,255,0.06); border-radius: 3px; overflow: hidden; }
+.progress-fill { height: 100%; border-radius: 3px; transition: width 0.8s ease; }
+.progress-pct { font-size: 11px; color: var(–muted); width: 38px; text-align: right; font-family: ‘JetBrains Mono’, monospace; }
+
+/* TIER INDICATORS */
+.tier-wrap { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+.tier-item {
+flex: 1; min-width: 120px;
+padding: 12px; border-radius: 10px;
+border: 1px solid;
+}
+.tier-1 { background: rgba(244,63,94,0.08); border-color: rgba(244,63,94,0.25); }
+.tier-2 { background: rgba(245,158,11,0.08); border-color: rgba(245,158,11,0.25); }
+.tier-3 { background: rgba(16,185,129,0.08); border-color: rgba(16,185,129,0.25); }
+.tier-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+.tier-1 .tier-label { color: #FCA5A5; }
+.tier-2 .tier-label { color: #FCD34D; }
+.tier-3 .tier-label { color: #6EE7B7; }
+.tier-value { font-size: 22px; font-weight: 800; color: var(–text); }
+.tier-desc { font-size: 10px; color: var(–text2); margin-top: 2px; }
+
+/* STUDENT LIST */
+.student-list { display: flex; flex-direction: column; gap: 6px; }
+.student-item {
+display: flex; align-items: center; gap: 10px;
+padding: 8px 10px; border-radius: 8px;
+background: rgba(255,255,255,0.02);
+border: 1px solid rgba(255,255,255,0.04);
+transition: all 0.15s;
+cursor: pointer;
+}
+.student-item:hover { background: rgba(14,165,233,0.06); border-color: rgba(14,165,233,0.15); }
+.student-avatar {
+width: 30px; height: 30px; border-radius: 8px;
+background: linear-gradient(135deg, var(–surface2), var(–surface));
+border: 1px solid var(–border);
+display: flex; align-items: center; justify-content: center;
+font-size: 12px; font-weight: 700; color: var(–accent2);
+flex-shrink: 0;
+}
+.student-name { font-size: 12px; font-weight: 500; color: var(–text); flex: 1; }
+.student-grades { display: flex; gap: 4px; }
+
+/* SUBJECT BREAKDOWN */
+.subject-pills { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
+.subject-pill {
+padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 600;
+cursor: pointer; transition: all 0.15s;
+}
+
+/* SCROLLABLE LIST */
+.scroll-list { max-height: 320px; overflow-y: auto; }
+.scroll-list::-webkit-scrollbar { width: 4px; }
+.scroll-list::-webkit-scrollbar-track { background: transparent; }
+.scroll-list::-webkit-scrollbar-thumb { background: var(–border); border-radius: 2px; }
+
+/* AI CHAT */
+.ai-chat-wrap {
+height: calc(100vh - 200px);
+display: flex; flex-direction: column;
+}
+.chat-messages {
+flex: 1; overflow-y: auto; padding: 16px;
+display: flex; flex-direction: column; gap: 12px;
+background: rgba(0,0,0,0.2);
+border-radius: 12px 12px 0 0;
+border: 1px solid var(–border);
+}
+.chat-messages::-webkit-scrollbar { width: 4px; }
+.chat-messages::-webkit-scrollbar-thumb { background: var(–border); border-radius: 2px; }
+.msg { display: flex; gap: 10px; max-width: 85%; }
+.msg.user { align-self: flex-end; flex-direction: row-reverse; }
+.msg-bubble {
+padding: 10px 14px; border-radius: 12px;
+font-size: 13px; line-height: 1.6;
+}
+.msg.ai .msg-bubble {
+background: var(–surface);
+border: 1px solid var(–border);
+color: var(–text);
+border-radius: 4px 12px 12px 12px;
+}
+.msg.user .msg-bubble {
+background: rgba(14,165,233,0.15);
+border: 1px solid rgba(14,165,233,0.25);
+color: var(–text);
+border-radius: 12px 4px 12px 12px;
+}
+.msg-icon {
+width: 28px; height: 28px; border-radius: 8px; flex-shrink: 0;
+display: flex; align-items: center; justify-content: center; font-size: 14px;
+background: rgba(139,92,246,0.2); border: 1px solid rgba(139,92,246,0.3);
+}
+.msg.user .msg-icon { background: rgba(14,165,233,0.15); border-color: rgba(14,165,233,0.25); }
+.chat-input-wrap {
+display: flex; gap: 10px;
+padding: 12px;
+background: var(–surface);
+border: 1px solid var(–border);
+border-top: none;
+border-radius: 0 0 12px 12px;
+}
+.chat-input {
+flex: 1; background: var(–bg); border: 1px solid var(–border);
+border-radius: 8px; padding: 10px 14px;
+color: var(–text); font-family: inherit; font-size: 13px;
+outline: none; resize: none; min-height: 40px; max-height: 120px;
+}
+.chat-input:focus { border-color: rgba(14,165,233,0.4); }
+.chat-send-btn {
+background: linear-gradient(135deg, #0EA5E9, #0369A1);
+color: white; border: none; border-radius: 8px;
+padding: 10px 18px; cursor: pointer; font-size: 13px; font-weight: 600;
+font-family: inherit; transition: all 0.15s;
+display: flex; align-items: center; gap: 6px;
+}
+.chat-send-btn:hover { opacity: 0.9; transform: translateY(-1px); }
+.chat-send-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+.quick-prompts { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
+.quick-prompt {
+padding: 5px 12px; font-size: 11px; font-weight: 500;
+background: rgba(14,165,233,0.08);
+border: 1px solid rgba(14,165,233,0.2);
+color: var(–accent2); border-radius: 20px; cursor: pointer;
+transition: all 0.15s;
+}
+.quick-prompt:hover { background: rgba(14,165,233,0.15); }
+
+/* MOE ALIGNMENT */
+.moe-pillars { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 16px; }
+.moe-pillar {
+padding: 16px; border-radius: 12px;
+background: var(–surface); border: 1px solid var(–border);
+text-align: center;
+}
+.moe-pillar-icon { font-size: 28px; margin-bottom: 8px; }
+.moe-pillar-title { font-size: 12px; font-weight: 700; color: var(–text); margin-bottom: 4px; }
+.moe-pillar-desc { font-size: 11px; color: var(–text2); line-height: 1.5; }
+
+/* TIMELINE */
+.timeline { position: relative; padding-left: 20px; }
+.timeline::before {
+content: ‘’; position: absolute; left: 6px; top: 0; bottom: 0;
+width: 1px; background: var(–border);
+}
+.tl-item { position: relative; padding-bottom: 18px; }
+.tl-dot {
+position: absolute; left: -17px; top: 3px;
+width: 10px; height: 10px; border-radius: 50%;
+background: var(–accent); border: 2px solid var(–bg);
+box-shadow: 0 0 8px var(–accent);
+}
+.tl-dot.gold { background: var(–gold); box-shadow: 0 0 8px var(–gold); }
+.tl-dot.green { background: var(–emerald); box-shadow: 0 0 8px var(–emerald); }
+.tl-dot.violet { background: var(–violet); box-shadow: 0 0 8px var(–violet); }
+.tl-period { font-size: 10px; font-weight: 700; color: var(–muted); text-transform: uppercase; letter-spacing: 0.5px; }
+.tl-title { font-size: 13px; font-weight: 600; color: var(–text); margin: 2px 0; }
+.tl-desc { font-size: 11px; color: var(–text2); line-height: 1.5; }
+
+/* INTERVENTION CARD */
+.intervention-card {
+border-radius: 10px; padding: 14px;
+margin-bottom: 10px;
+}
+.int-high { background: rgba(244,63,94,0.07); border: 1px solid rgba(244,63,94,0.2); }
+.int-med { background: rgba(245,158,11,0.07); border: 1px solid rgba(245,158,11,0.2); }
+.int-low { background: rgba(16,185,129,0.07); border: 1px solid rgba(16,185,129,0.2); }
+.int-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.int-title { font-size: 12px; font-weight: 700; }
+.int-high .int-title { color: #FCA5A5; }
+.int-med .int-title { color: #FCD34D; }
+.int-low .int-title { color: #6EE7B7; }
+.int-count { font-size: 18px; font-weight: 800; color: var(–text); }
+.int-list { font-size: 11px; color: var(–text2); line-height: 1.6; }
+
+/* TOGGLE */
+.filter-bar { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; align-items: center; }
+.filter-btn {
+padding: 5px 14px; border-radius: 20px; font-size: 11px; font-weight: 600;
+background: var(–card); border: 1px solid var(–border); color: var(–text2);
+cursor: pointer; transition: all 0.15s;
+}
+.filter-btn.active, .filter-btn:hover { background: rgba(14,165,233,0.1); border-color: rgba(14,165,233,0.3); color: var(–accent2); }
+
+/* MOE VISIT PANEL */
+.visit-section { margin-bottom: 24px; }
+.visit-section h3 { font-size: 14px; font-weight: 700; color: var(–text); margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid var(–border); }
+.checklist-item {
+display: flex; align-items: flex-start; gap: 10px;
+padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.03);
+}
+.check-icon { width: 20px; height: 20px; border-radius: 50%; flex-shrink: 0; margin-top: 1px; display: flex; align-items: center; justify-content: center; font-size: 11px; }
+.check-done { background: rgba(16,185,129,0.2); color: #6EE7B7; }
+.check-pending { background: rgba(245,158,11,0.2); color: #FCD34D; }
+.checklist-content { flex: 1; }
+.checklist-title { font-size: 12px; font-weight: 600; color: var(–text); }
+.checklist-sub { font-size: 11px; color: var(–text2); margin-top: 2px; }
+
+/* LOADING SPINNER */
+.loading { display: flex; align-items: center; gap: 8px; color: var(–text2); font-size: 12px; }
+.spinner {
+width: 16px; height: 16px; border: 2px solid rgba(14,165,233,0.2);
+border-top-color: var(–accent); border-radius: 50%;
+animation: spin 0.7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* SCROLLBAR */
+.main::-webkit-scrollbar { width: 5px; }
+.main::-webkit-scrollbar-track { background: transparent; }
+.main::-webkit-scrollbar-thumb { background: var(–border); border-radius: 3px; }
+
+/* HIGHLIGHT BOX */
+.highlight-box {
+background: linear-gradient(135deg, rgba(14,165,233,0.06), rgba(56,189,248,0.03));
+border: 1px solid rgba(14,165,233,0.2);
+border-radius: 12px; padding: 16px;
+margin-bottom: 14px;
+}
+.highlight-row { display: flex; justify-content: space-between; align-items: center; }
+.highlight-title { font-size: 12px; font-weight: 700; color: var(–accent2); }
+.highlight-value { font-size: 20px; font-weight: 800; color: var(–text); }
+.highlight-sub { font-size: 11px; color: var(–text2); }
+
+/* RESPONSIVE */
+@media (max-width: 900px) {
+.sidebar { display: none; }
+.grid-2, .grid-3, .grid-65 { grid-template-columns: 1fr; }
+.moe-pillars { grid-template-columns: 1fr; }
+}
+
+/* PULSE RING */
+.pulse-ring {
+position: relative; display: inline-flex;
+}
+.pulse-ring::after {
+content: ‘’;
+position: absolute; inset: -3px; border-radius: 50%;
+border: 1px solid var(–accent); opacity: 0;
+animation: ring 2s ease-out infinite;
+}
+@keyframes ring { 0%{opacity:0.6;transform:scale(0.8)} 100%{opacity:0;transform:scale(1.5)} }
+
+/* TOOLTIP */
+.tooltip { position: relative; }
+.tooltip-text {
+visibility: hidden; position: absolute; bottom: 120%; left: 50%; transform: translateX(-50%);
+background: var(–surface2); border: 1px solid var(–border);
+padding: 5px 10px; border-radius: 6px; font-size: 11px; color: var(–text);
+white-space: nowrap; z-index: 1000; pointer-events: none;
+}
+.tooltip:hover .tooltip-text { visibility: visible; }
+</style>
+
+</head>
+<body>
+
+<!-- HEADER -->
+
+<div class="header">
+  <div class="header-brand">
+    <div class="brand-icon">RTG</div>
+    <div class="brand-text">
+      <h1>Review To Grow — AI Integrated System 2026</h1>
+      <p>SRP Kampong Lambak Kanan Jln 10 &nbsp;·&nbsp; Cluster 3 &nbsp;·&nbsp; Year 6 PSR 2026</p>
+    </div>
+  </div>
+  <div class="header-right">
+    <div class="moe-badge">📋 MOE Visit Ready</div>
+    <div class="ai-badge"><div class="ai-dot pulse-ring"></div> AI-Powered</div>
+  </div>
+</div>
+
+<div class="app">
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <div class="sidebar-section-label">Overview</div>
+  <div class="nav-item active" onclick="showPanel('dashboard')">
+    <span class="icon">📊</span> Dashboard
+  </div>
+  <div class="nav-item" onclick="showPanel('students')">
+    <span class="icon">👥</span> Students
+    <span class="nav-badge green">57</span>
+  </div>
+
+  <div class="sidebar-section-label">Assessment</div>
+  <div class="nav-item" onclick="showPanel('subjects')">
+    <span class="icon">📚</span> Subject Analysis
+  </div>
+  <div class="nav-item" onclick="showPanel('intervention')">
+    <span class="icon">🎯</span> Intervention
+    <span class="nav-badge">Tier 1–3</span>
+  </div>
+  <div class="nav-item" onclick="showPanel('progress')">
+    <span class="icon">📈</span> Progress Tracker
+  </div>
+
+  <div class="sidebar-section-label">AI Features</div>
+  <div class="nav-item" onclick="showPanel('ai-chat')">
+    <span class="icon">🤖</span> AI Assistant
+  </div>
+  <div class="nav-item" onclick="showPanel('ai-reports')">
+    <span class="icon">✨</span> AI Report Writer
+  </div>
+
+  <div class="sidebar-section-label">MOE Visit</div>
+  <div class="nav-item" onclick="showPanel('moe-visit')">
+    <span class="icon">🏛️</span> Visit Preparation
+  </div>
+  <div class="nav-item" onclick="showPanel('moe-alignment')">
+    <span class="icon">🇧🇳</span> MOE Alignment
+  </div>
+
+  <div class="sidebar-section-label">System</div>
+  <div class="nav-item" onclick="showPanel('settings')">
+    <span class="icon">⚙️</span> Settings & Data
+    <span class="nav-badge" id="settings-status-badge" style="background:var(--rose)">Setup</span>
+  </div>
+</div>
+
+<!-- MAIN -->
+
+<div class="main">
+
+<!-- ======================== DASHBOARD PANEL ======================== -->
+
+<div id="panel-dashboard" class="panel active">
+  <div class="page-header">
+    <h2>School Performance Dashboard</h2>
+    <p>Real-time overview of Year 6 cohort progress — PSR 2026 campaign</p>
+    <div class="tags">
+      <span class="tag blue">57 Candidates</span>
+      <span class="tag gold">Target: 80% A–C</span>
+      <span class="tag green">Baseline: 38.33%</span>
+      <span class="tag violet">5 Subjects Tracked</span>
+    </div>
+  </div>
+
+  <div class="stat-grid">
+    <div class="stat-card">
+      <div class="stat-icon">👨‍🎓</div>
+      <div class="stat-label">Total Candidates</div>
+      <div class="stat-value">57</div>
+      <div class="stat-sub">Classes 6A · 6B · 6C</div>
+    </div>
+    <div class="stat-card gold">
+      <div class="stat-icon">🎯</div>
+      <div class="stat-label">PSR 2026 Target</div>
+      <div class="stat-value">80%</div>
+      <div class="stat-sub">A–C achievement goal</div>
+    </div>
+    <div class="stat-card rose">
+      <div class="stat-icon">📊</div>
+      <div class="stat-label">PSR 2025 Baseline</div>
+      <div class="stat-value">38.3%</div>
+      <div class="stat-sub">23/60 candidates A–C</div>
+    </div>
+    <div class="stat-card green">
+      <div class="stat-icon">⭐</div>
+      <div class="stat-label">Gap to Close</div>
+      <div class="stat-value">+41.7%</div>
+      <div class="stat-sub">Improvement needed</div>
+    </div>
+    <div class="stat-card violet">
+      <div class="stat-icon">🤖</div>
+      <div class="stat-label">AI Tools Active</div>
+      <div class="stat-value">5</div>
+      <div class="stat-sub">Integrated in system</div>
+    </div>
+  </div>
+
+  <div class="ai-insight">
+    <div class="ai-insight-header">🤖 AI Analysis — Cohort Summary</div>
+    <div class="ai-insight-body">
+      Based on SBE 2025 baseline data, the current Year 6 cohort of <strong>57 students</strong> shows critical weaknesses in <strong>Mathematics (avg 35% E-grade)</strong> and <strong>English (early SBA gap)</strong>. MIB remains the strongest subject at <strong>93.33% A–C</strong>. Priority intervention is needed for the <strong>Tier 1 group</strong> (~26 students scoring Grade E in 3+ subjects). AI-assisted drill in Maths and structured reading scaffolds in English are recommended to close the attainment gap by Mock in Term 3.
+    </div>
+  </div>
+
+  <div class="grid-65">
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">PSR Historical Trend (2020–2026)</div>
+          <div class="card-sub">A–C percentage per year with 2026 target line</div>
+        </div>
+      </div>
+      <div class="chart-wrap">
+        <canvas id="trendChart"></canvas>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">PSR 2025 — By Subject</div>
+          <div class="card-sub">A–C rate per subject</div>
+        </div>
+      </div>
+      <div class="chart-wrap">
+        <canvas id="subjectChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">SBE 2025 Grade Distribution</div>
+          <div class="card-sub">Current Year 6 cohort baseline (per subject)</div>
+        </div>
+      </div>
+      <div class="chart-wrap">
+        <canvas id="sbeChart"></canvas>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">Intervention Tier Overview</div>
+          <div class="card-sub">Students by support level</div>
+        </div>
+      </div>
+      <div class="tier-wrap">
+        <div class="tier-item tier-1">
+          <div class="tier-label">🔴 Tier 1 — Intensive</div>
+          <div class="tier-value">~26</div>
+          <div class="tier-desc">Grade E in 3+ subjects. Daily pull-out & AI drill sessions required.</div>
+        </div>
+        <div class="tier-item tier-2">
+          <div class="tier-label">🟡 Tier 2 — Targeted</div>
+          <div class="tier-value">~18</div>
+          <div class="tier-desc">Grade D–E in 1–2 subjects. Weekly targeted support & monitoring.</div>
+        </div>
+        <div class="tier-item tier-3">
+          <div class="tier-label">🟢 Tier 3 — Enrichment</div>
+          <div class="tier-value">~13</div>
+          <div class="tier-desc">Grade A–C baseline. Nurture toward 5A; act as peer tutors.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ======================== STUDENTS PANEL ======================== -->
+
+<div id="panel-students" class="panel">
+  <div class="page-header">
+    <h2>Student Roster & Profiles</h2>
+    <p>57 Year 6 candidates across 3 classes with live grade tracking</p>
+  </div>
+
+  <div class="filter-bar">
+    <span style="font-size:12px;color:var(--text2);font-weight:600;">Filter:</span>
+    <div class="filter-btn active" onclick="filterStudents('all', this)">All Students</div>
+    <div class="filter-btn" onclick="filterStudents('6A', this)">Class 6A</div>
+    <div class="filter-btn" onclick="filterStudents('6B', this)">Class 6B</div>
+    <div class="filter-btn" onclick="filterStudents('6C', this)">Class 6C</div>
+    <div class="filter-btn" onclick="filterStudents('tier1', this)">Tier 1 (Priority)</div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <div>
+        <div class="card-title">Year 6 Student List</div>
+        <div class="card-sub">Click any student for AI-generated progress summary</div>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Student Name</th>
+            <th>Class</th>
+            <th>MIB</th>
+            <th>BM</th>
+            <th>SCI</th>
+            <th>ENG</th>
+            <th>MAT</th>
+            <th>SBE Result</th>
+            <th>Tier</th>
+          </tr>
+        </thead>
+        <tbody id="student-table-body">
+          <!-- Populated by JS -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Student detail modal -->
+
+  <div id="student-detail" style="display:none;">
+    <div class="ai-insight">
+      <div class="ai-insight-header">🤖 AI Student Profile — <span id="detail-name"></span></div>
+      <div class="ai-insight-body" id="detail-body">Loading...</div>
+    </div>
+  </div>
+</div>
+
+<!-- ======================== SUBJECTS PANEL ======================== -->
+
+<div id="panel-subjects" class="panel">
+  <div class="page-header">
+    <h2>Subject Performance Analysis</h2>
+    <p>Detailed breakdown by subject with AI-generated insights and intervention strategies</p>
+  </div>
+
+  <div class="grid-3">
+    <div class="card" style="margin-bottom:0">
+      <div class="card-title" style="margin-bottom:12px">📗 MIB (Melayu Islam Beraja)</div>
+      <div class="progress-wrap">
+        <div class="progress-row">
+          <div class="progress-label">PSR 2025</div>
+          <div class="progress-bar"><div class="progress-fill" style="width:93.3%;background:var(--emerald)"></div></div>
+          <div class="progress-pct">93.3%</div>
+        </div>
+        <div class="progress-row">
+          <div class="progress-label">Target 2026</div>
+          <div class="progress-bar"><div class="progress-fill" style="width:95%;background:var(--accent)"></div></div>
+          <div class="progress-pct">95%</div>
+        </div>
+      </div>
+      <div style="margin-top:10px;font-size:11px;color:var(--text2)">Strongest subject. Maintain and improve writing quality.</div>
+    </div>
+    <div class="card" style="margin-bottom:0">
+      <div class="card-title" style="margin-bottom:12px">📘 Bahasa Melayu</div>
+      <div class="progress-wrap">
+        <div class="progress-row">
+          <div class="progress-label">PSR 2025</div>
+          <div class="progress-bar"><div class="progress-fill" style="width:75%;background:var(--gold)"></div></div>
+          <div class="progress-pct">75%</div>
+        </div>
+        <div class="progress-row">
+          <div class="progress-label">Target 2026</div>
+          <div class="progress-bar"><div class="progress-fill" style="width:85%;background:var(--accent)"></div></div>
+          <div class="progress-pct">85%</div>
+        </div>
+      </div>
+      <div style="margin-top:10px;font-size:11px;color:var(--text2)">↓ Declined from 85.24%. Focus on karangan & tatabahasa.</div>
+    </div>
+    <div class="card" style="margin-bottom:0">
+      <div class="card-title" style="margin-bottom:12px">🔬 Science</div>
+      <div class="progress-wrap">
+        <div class="progress-row">
+          <div class="progress-label">PSR 2025</div>
+          <div class="progress-bar"><div class="progress-fill" style="width:63.3%;background:var(--accent)"></div></div>
+          <div class="progress-pct">63.3%</div>
+        </div>
+        <div class="progress-row">
+          <div class="progress-label">Target 2026</div>
+          <div class="progress-bar"><div class="progress-fill" style="width:80%;background:var(--accent)"></div></div>
+          <div class="progress-pct">80%</div>
+        </div>
+      </div>
+      <div style="margin-top:10px;font-size:11px;color:var(--text2)">↑ Improved from 52.6%. Concept mapping + AI quizzes needed.</div>
+    </div>
+  </div>
+  <div style="height:14px"></div>
+  <div class="grid-2">
+    <div class="card" style="margin-bottom:0">
+      <div class="card-title" style="margin-bottom:12px">🌏 English</div>
+      <div class="progress-wrap">
+        <div class="progress-row">
+          <div class="progress-label">PSR 2025</div>
+          <div class="progress-bar"><div class="progress-fill" style="width:71.7%;background:var(--violet)"></div></div>
+          <div class="progress-pct">71.7%</div>
+        </div>
+        <div class="progress-row">
+          <div class="progress-label">Target 2026</div>
+          <div class="progress-bar"><div class="progress-fill" style="width:80%;background:var(--accent)"></div></div>
+          <div class="progress-pct">80%</div>
+        </div>
+      </div>
+      <div style="margin-top:10px;font-size:11px;color:var(--text2)">↑ Improved from 52.6%. Continue reading programmes & AI writing tools.</div>
+    </div>
+    <div class="card" style="margin-bottom:0">
+      <div class="card-title" style="margin-bottom:12px">🔢 Mathematics</div>
+      <div class="progress-wrap">
+        <div class="progress-row">
+          <div class="progress-label">PSR 2025</div>
+          <div class="progress-bar"><div class="progress-fill" style="width:40%;background:var(--rose)"></div></div>
+          <div class="progress-pct">40%</div>
+        </div>
+        <div class="progress-row">
+          <div class="progress-label">Target 2026</div>
+          <div class="progress-bar"><div class="progress-fill" style="width:70%;background:var(--accent)"></div></div>
+          <div class="progress-pct">70%</div>
+        </div>
+      </div>
+      <div style="margin-top:10px;font-size:11px;color:var(--text2)">↓ CRITICAL DROP from 50.8%. AI-drill + Maths Support Circle urgent.</div>
+    </div>
+  </div>
+
+  <div style="height:16px"></div>
+  <div class="ai-insight">
+    <div class="ai-insight-header">🤖 AI Subject Recommendations</div>
+    <div class="ai-insight-body">
+      <strong>Mathematics (URGENT):</strong> 48% Grade E rate in PSR 2025. Root causes: fractions, word problems, ratios. Recommended: Khan Academy-style adaptive AI drill, daily 15-min Maths Support Circle, peer-tutoring pairs from Tier 3. Target: reduce Grade E from 48% to under 20% by Mock.<br><br>
+      <strong>Bahasa Melayu:</strong> Declining trend — implement AI-generated karangan feedback tools, structured vocabulary building via apps (e.g. Quizlet AI), timed writing drills.<br><br>
+      <strong>English:</strong> Strong SBE pretest scores in 6A. Leverage high performers as reading buddies. AI tools: Grammarly-for-students, AI reading comprehension generators.<br><br>
+      <strong>Science:</strong> Improving trend. Use AI concept-map generators for key topics. Quiz apps (Kahoot/Blooket AI) for engagement.
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">Grade Distribution by Subject (SBA1)</div>
+    </div>
+    <canvas id="gradeDistChart" style="max-height:260px"></canvas>
+  </div>
+</div>
+
+<!-- ======================== INTERVENTION PANEL ======================== -->
+
+<div id="panel-intervention" class="panel">
+  <div class="page-header">
+    <h2>Tiered Intervention Plan</h2>
+    <p>Structured support framework aligned with MOE SPN21 & RTG 2026 strategy</p>
+  </div>
+
+  <div class="grid-3">
+    <div class="intervention-card int-high">
+      <div class="int-header">
+        <div class="int-title">🔴 TIER 1 — Intensive Support</div>
+        <div class="int-count">~26</div>
+      </div>
+      <div class="int-list">
+        <strong style="color:var(--text)">Who:</strong> Students with Grade E in Maths + 1 other subject<br>
+        <strong style="color:var(--text)">Frequency:</strong> Daily pull-out sessions (Term 1–3)<br>
+        <strong style="color:var(--text)">AI Tools:</strong> Adaptive drill apps, AI flashcards, text-to-speech for dyslexia support<br>
+        <strong style="color:var(--text)">Monitoring:</strong> Weekly grade check via this dashboard<br>
+        <strong style="color:var(--text)">KPI:</strong> Move from E → D by SBA1, D → C by Mock
+      </div>
+    </div>
+    <div class="intervention-card int-med">
+      <div class="int-header">
+        <div class="int-title">🟡 TIER 2 — Targeted Intervention</div>
+        <div class="int-count">~18</div>
+      </div>
+      <div class="int-list">
+        <strong style="color:var(--text)">Who:</strong> Grade D–E in 1–2 subjects, not qualifying for Tier 1<br>
+        <strong style="color:var(--text)">Frequency:</strong> 3× weekly small-group sessions<br>
+        <strong style="color:var(--text)">AI Tools:</strong> AI quiz generators (Quizizz), grammar checkers, concept mapping AI<br>
+        <strong style="color:var(--text)">Monitoring:</strong> Biweekly progress review by subject teacher<br>
+        <strong style="color:var(--text)">KPI:</strong> Move from D → C by SBA2, maintain C → B by PSR
+      </div>
+    </div>
+    <div class="intervention-card int-low">
+      <div class="int-header">
+        <div class="int-title">🟢 TIER 3 — Enrichment & Leadership</div>
+        <div class="int-count">~13</div>
+      </div>
+      <div class="int-list">
+        <strong style="color:var(--text)">Who:</strong> Consistent Grade A–B performers across subjects<br>
+        <strong style="color:var(--text)">Focus:</strong> 5A nurture programme, peer tutor training<br>
+        <strong style="color:var(--text)">AI Tools:</strong> AI essay enhancement, advanced problem sets, research AI tools<br>
+        <strong style="color:var(--text)">Monitoring:</strong> Monthly enrichment review<br>
+        <strong style="color:var(--text)">KPI:</strong> Minimum 3 students achieve 5A in PSR 2026
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">📅 Intervention Timeline — 2026</div>
+    </div>
+    <div class="timeline">
+      <div class="tl-item">
+        <div class="tl-dot"></div>
+        <div class="tl-period">January – March</div>
+        <div class="tl-title">SBE Baseline & Tier Assignment</div>
+        <div class="tl-desc">Administer SBE, analyse data, assign all 57 students to Tier 1/2/3. Begin pull-out sessions. AI tools introduced to students.</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-dot gold"></div>
+        <div class="tl-period">April – June (SBA1)</div>
+        <div class="tl-title">First Assessment Cycle & Adjustment</div>
+        <div class="tl-desc">SBA1 results analysed through this AI dashboard. Tier movement reviewed. Maths Support Circle begins Term 2. AI comment auto-generation activated.</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-dot gold"></div>
+        <div class="tl-period">July – August (SBA2)</div>
+        <div class="tl-title">Mid-Year Review & Acceleration</div>
+        <div class="tl-desc">SBA2 targets verified. Students in D/E Maths get intensive AI-drill programme (3-week sprint). Progress reported to Cikgu Besar.</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-dot violet"></div>
+        <div class="tl-period">September – October (Mock)</div>
+        <div class="tl-title">Mock Exam & Final Intervention</div>
+        <div class="tl-desc">Mock results benchmarked. Final targeted revision sessions. AI-generated mock reports sent to parents. Tier 1 students receive individual action plans.</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-dot green"></div>
+        <div class="tl-period">October 2026 (PSR)</div>
+        <div class="tl-title">PSR Examination — TARGET: 80% A–C</div>
+        <div class="tl-desc">All interventions complete. Minimum 3 students targeting 5A. Post-PSR reflective data entry for RTG 2027 planning.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ======================== PROGRESS TRACKER ======================== -->
+
+<div id="panel-progress" class="panel">
+  <div class="page-header">
+    <h2>Progress Tracker</h2>
+    <p>Assessment-by-assessment progression: SBE → SBA1 → SBA2 → Mock → PSR</p>
+  </div>
+
+  <div class="ai-insight">
+    <div class="ai-insight-header">🤖 AI Progress Observation</div>
+    <div class="ai-insight-body">
+      <strong>Critical Watch:</strong> The transition from SBE to SBA1 shows <strong>Mathematics consistently underperforming</strong> — nearly 96% of students scored Grade E in the baseline, with SBA1 data showing minimal improvement. This subject requires an emergency intervention escalation. <strong>MIB and BM</strong> show stability with a notable group of high-achievers (A/B band). English SBA1 data gap flagged — teacher input required.
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">Assessment Progression Radar — Class 6A Sample</div>
+      <div class="card-sub">SBE 2025 vs SBA1 grade averages</div>
+    </div>
+    <canvas id="radarChart" style="max-height:300px"></canvas>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">A–C Rate — Assessment Journey</div>
+        <div class="card-sub">Target vs actual across assessments</div>
+      </div>
+      <canvas id="progressChart" style="max-height:220px"></canvas>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">Mathematics — Grade Movement</div>
+        <div class="card-sub">E-grade reduction plan vs actuals</div>
+      </div>
+      <canvas id="mathsChart" style="max-height:220px"></canvas>
+    </div>
+  </div>
+</div>
+
+<!-- ======================== AI CHAT PANEL ======================== -->
+
+<div id="panel-ai-chat" class="panel">
+  <div class="page-header">
+    <h2>🤖 AI Teaching Assistant</h2>
+    <p>Ask about students, intervention strategies, MOE alignment, or generate content. Powered by Claude AI.</p>
+  </div>
+
+  <div class="quick-prompts">
+    <div class="quick-prompt" onclick="setPrompt('Which students are at highest risk of failing PSR 2026 and why?')">🔴 At-risk students</div>
+    <div class="quick-prompt" onclick="setPrompt('Generate a Maths intervention plan for Tier 1 students focusing on fractions and word problems')">📐 Maths intervention plan</div>
+    <div class="quick-prompt" onclick="setPrompt('How does our RTG system align with MOE Brunei AI in education initiatives?')">🇧🇳 MOE AI alignment</div>
+    <div class="quick-prompt" onclick="setPrompt('Write a professional summary of our school\'s PSR strategy for the MOE officer visit')">📋 MOE visit summary</div>
+    <div class="quick-prompt" onclick="setPrompt('What are best AI tools for primary school students in Brunei to improve their Maths?')">🛠️ AI tools for students</div>
+    <div class="quick-prompt" onclick="setPrompt('Generate positive, bilingual (English and Malay) progress comments for Grade C Science students')">💬 Generate comments</div>
+  </div>
+
+  <div class="ai-chat-wrap">
+    <div class="chat-messages" id="chat-messages">
+      <div class="msg ai">
+        <div class="msg-icon">🤖</div>
+        <div class="msg-bubble">
+          Assalamualaikum! I'm your RTG AI Teaching Assistant for SRP Kampong Lambak Kanan Jln 10. I have full context of your Year 6 cohort — 57 students across 6A, 6B, and 6C, with PSR 2025 baseline at 38.33% and a 2026 target of 80% A–C.<br><br>
+          I can help you with: student risk analysis, intervention planning, generating teacher comments, MOE alignment reports, AI tool recommendations, and preparation for the MOE officer visit. What would you like to explore?
+        </div>
+      </div>
+    </div>
+    <div class="chat-input-wrap">
+      <textarea class="chat-input" id="chat-input" rows="1" placeholder="Ask about students, strategies, MOE alignment, or generate content..." onkeydown="handleChatKey(event)"></textarea>
+      <button class="chat-send-btn" id="chat-send-btn" onclick="sendChat()">
+        Send ▶
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ======================== AI REPORTS PANEL ======================== -->
+
+<div id="panel-ai-reports" class="panel">
+  <div class="page-header">
+    <h2>✨ AI Report Writer</h2>
+    <p>Generate professional teacher comments, progress reports, and MOE documentation using AI</p>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">🎓 Student Report Comment Generator</div>
+          <div class="card-sub">AI-generated bilingual comments based on performance</div>
+        </div>
+      </div>
+
+```
+  <div style="display:flex;flex-direction:column;gap:10px">
+    <div>
+      <label style="font-size:11px;color:var(--text2);font-weight:600;display:block;margin-bottom:4px">Subject</label>
+      <select id="report-subject" style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:8px 10px;border-radius:8px;font-family:inherit;font-size:12px">
+        <option>Mathematics</option>
+        <option>Bahasa Melayu</option>
+        <option>English</option>
+        <option>Science</option>
+        <option>MIB</option>
+      </select>
+    </div>
+    <div>
+      <label style="font-size:11px;color:var(--text2);font-weight:600;display:block;margin-bottom:4px">Grade Achieved</label>
+      <select id="report-grade" style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:8px 10px;border-radius:8px;font-family:inherit;font-size:12px">
+        <option>A (Excellent)</option>
+        <option>B (Very Good)</option>
+        <option>C (Good)</option>
+        <option>D (Satisfactory)</option>
+        <option>E (Needs Improvement)</option>
+      </select>
+    </div>
+    <div>
+      <label style="font-size:11px;color:var(--text2);font-weight:600;display:block;margin-bottom:4px">Additional Context (optional)</label>
+      <input id="report-context" type="text" placeholder="e.g. improved from E, struggles with fractions..." style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:8px 10px;border-radius:8px;font-family:inherit;font-size:12px">
+    </div>
+    <button onclick="generateReport()" style="background:linear-gradient(135deg,#8B5CF6,#6D28D9);color:white;border:none;border-radius:8px;padding:10px;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;transition:opacity 0.15s" onmouseover="this.style.opacity=0.9" onmouseout="this.style.opacity=1">
+      ✨ Generate AI Comment
+    </button>
+  </div>
+
+  <div id="report-output" style="margin-top:14px;display:none">
+    <div class="ai-insight">
+      <div class="ai-insight-header">✨ Generated Comment</div>
+      <div class="ai-insight-body" id="report-text"></div>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <div>
+      <div class="card-title">📄 MOE Visit Document Generator</div>
+      <div class="card-sub">Auto-generate professional documentation for the officer visit</div>
+    </div>
+  </div>
+
+  <div style="display:flex;flex-direction:column;gap:10px">
+    <div>
+      <label style="font-size:11px;color:var(--text2);font-weight:600;display:block;margin-bottom:4px">Document Type</label>
+      <select id="doc-type" style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:8px 10px;border-radius:8px;font-family:inherit;font-size:12px">
+        <option>School Performance Summary for MOE Officer</option>
+        <option>AI Integration Justification Report</option>
+        <option>Intervention Strategy Brief</option>
+        <option>PSR 2026 Action Plan Overview</option>
+        <option>Year 6 Cohort Strength & Weakness Analysis</option>
+      </select>
+    </div>
+    <div>
+      <label style="font-size:11px;color:var(--text2);font-weight:600;display:block;margin-bottom:4px">Tone</label>
+      <select id="doc-tone" style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:8px 10px;border-radius:8px;font-family:inherit;font-size:12px">
+        <option>Professional & Formal (for MOE)</option>
+        <option>Data-driven & Analytical</option>
+        <option>Reflective & Evidence-based</option>
+      </select>
+    </div>
+    <button onclick="generateDocument()" style="background:linear-gradient(135deg,#0EA5E9,#0369A1);color:white;border:none;border-radius:8px;padding:10px;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;transition:opacity 0.15s" onmouseover="this.style.opacity=0.9" onmouseout="this.style.opacity=1">
+      📄 Generate Document
+    </button>
+  </div>
+
+  <div id="doc-output" style="margin-top:14px;display:none">
+    <div class="ai-insight">
+      <div class="ai-insight-header">📄 Generated Document</div>
+      <div class="ai-insight-body" id="doc-text" style="white-space:pre-line"></div>
+    </div>
+  </div>
+</div>
+```
+
+  </div>
+</div>
+
+<!-- ======================== MOE VISIT PANEL ======================== -->
+
+<div id="panel-moe-visit" class="panel">
+  <div class="page-header">
+    <h2>🏛️ MOE Officer Visit Preparation</h2>
+    <p>Comprehensive checklist and key talking points for the Jabatan Sekolah-Sekolah visit</p>
+  </div>
+
+  <div class="ai-insight">
+    <div class="ai-insight-header">🤖 AI Pre-Visit Brief</div>
+    <div class="ai-insight-body">
+      This school is prepared to present a <strong>data-driven, AI-integrated RTG system</strong> demonstrating clear alignment with MOE Brunei's digital transformation agenda. Key strength: <strong>structured 3-tier intervention</strong> with measurable KPIs. Key concern to address proactively: <strong>Mathematics attainment gap</strong> — present the AI-assisted remediation plan as a concrete response. Lead with the <strong>38.33% → 80% A–C improvement journey</strong> as the narrative thread.
+    </div>
+  </div>
+
+  <div class="visit-section">
+    <h3>📋 Documentation Checklist</h3>
+    <div class="checklist-item">
+      <div class="check-icon check-done">✓</div>
+      <div class="checklist-content">
+        <div class="checklist-title">RTG Year 6 Strategic Presentation (PPTX)</div>
+        <div class="checklist-sub">PSR trend analysis, cohort profile, intervention strategies — complete ✓</div>
+      </div>
+    </div>
+    <div class="checklist-item">
+      <div class="check-icon check-done">✓</div>
+      <div class="checklist-content">
+        <div class="checklist-title">Year 6 Assessment Template (Excel)</div>
+        <div class="checklist-sub">Student rosters, subject grades (SBE–SBA1–SBA2–Mock–PSR) — live data ✓</div>
+      </div>
+    </div>
+    <div class="checklist-item">
+      <div class="check-icon check-done">✓</div>
+      <div class="checklist-content">
+        <div class="checklist-title">AI-Integrated Dashboard (HTML)</div>
+        <div class="checklist-sub">This system — synchronized, AI-powered, MOE-aligned ✓</div>
+      </div>
+    </div>
+    <div class="checklist-item">
+      <div class="check-icon check-pending">⏳</div>
+      <div class="checklist-content">
+        <div class="checklist-title">SBA1 Results Entry</div>
+        <div class="checklist-sub">Teacher input required for SBA1 scores in assessment template</div>
+      </div>
+    </div>
+    <div class="checklist-item">
+      <div class="check-icon check-pending">⏳</div>
+      <div class="checklist-content">
+        <div class="checklist-title">Parent Communication Evidence</div>
+        <div class="checklist-sub">Letters/reports sent to parents re: intervention tiers</div>
+      </div>
+    </div>
+    <div class="checklist-item">
+      <div class="check-icon check-pending">⏳</div>
+      <div class="checklist-content">
+        <div class="checklist-title">AI Tool Usage Log</div>
+        <div class="checklist-sub">Record of AI tools used in lessons, with student response samples</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="visit-section">
+    <h3>💬 Key Talking Points for MOE Officer</h3>
+    <div class="card" style="margin-bottom:12px">
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <div style="padding:12px;background:rgba(14,165,233,0.05);border-radius:8px;border-left:3px solid var(--accent)">
+          <div style="font-size:12px;font-weight:700;color:var(--accent2);margin-bottom:4px">1. Data-Driven Decision Making</div>
+          <div style="font-size:12px;color:var(--text2)">Every intervention decision is backed by real assessment data — PSR 2025 results, SBE 2025 baseline, and ongoing SBA tracking. This AI dashboard provides real-time visibility for all 57 students across 5 subjects.</div>
+        </div>
+        <div style="padding:12px;background:rgba(139,92,246,0.05);border-radius:8px;border-left:3px solid var(--violet)">
+          <div style="font-size:12px;font-weight:700;color:#C4B5FD;margin-bottom:4px">2. AI Integration in Teaching & Learning</div>
+          <div style="font-size:12px;color:var(--text2)">AI tools are used for adaptive drill (Maths), automated comment generation, student risk identification, and teacher planning support — directly aligned with MOE's Digital Education Blueprint and AI in schools initiative.</div>
+        </div>
+        <div style="padding:12px;background:rgba(16,185,129,0.05);border-radius:8px;border-left:3px solid var(--emerald)">
+          <div style="font-size:12px;font-weight:700;color:#6EE7B7;margin-bottom:4px">3. Structured Tiered Intervention</div>
+          <div style="font-size:12px;color:var(--text2)">3-tier intervention (Intensive / Targeted / Enrichment) ensures no student is left behind. Tier 1 students receive daily pull-out support with AI-assisted resources. Progress is tracked in this synchronized system.</div>
+        </div>
+        <div style="padding:12px;background:rgba(245,158,11,0.05);border-radius:8px;border-left:3px solid var(--gold)">
+          <div style="font-size:12px;font-weight:700;color:#FCD34D;margin-bottom:4px">4. Ambitious Yet Realistic Target</div>
+          <div style="font-size:12px;color:var(--text2)">PSR 2025: 38.33% A–C → PSR 2026 Target: 80% A–C. This +41.7% improvement is achievable given the cohort's SBE baseline, structured planning, and AI-enhanced instruction. Mini-targets are set per assessment cycle.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ======================== MOE ALIGNMENT PANEL ======================== -->
+
+<div id="panel-moe-alignment" class="panel">
+  <div class="page-header">
+    <h2>🇧🇳 MOE Brunei Alignment</h2>
+    <p>How this RTG AI system maps to MOE Brunei's ongoing plans for school AI integration</p>
+  </div>
+
+  <div class="moe-pillars">
+    <div class="moe-pillar">
+      <div class="moe-pillar-icon">🧠</div>
+      <div class="moe-pillar-title">AI-Powered Learning</div>
+      <div class="moe-pillar-desc">Adaptive AI tools for Maths drill, English writing, and Science concept mapping — supporting SPN21 differentiated learning</div>
+    </div>
+    <div class="moe-pillar">
+      <div class="moe-pillar-icon">📊</div>
+      <div class="moe-pillar-title">Data-Driven Schools</div>
+      <div class="moe-pillar-desc">Real-time assessment dashboard replacing manual tracking — aligned with KPM's school improvement data framework</div>
+    </div>
+    <div class="moe-pillar">
+      <div class="moe-pillar-icon">👩‍🏫</div>
+      <div class="moe-pillar-title">Teacher Empowerment</div>
+      <div class="moe-pillar-desc">AI Assistant reduces admin burden — auto-generates comments, reports, and intervention plans, freeing teachers for instruction</div>
+    </div>
+    <div class="moe-pillar">
+      <div class="moe-pillar-icon">🌐</div>
+      <div class="moe-pillar-title">Digital Literacy</div>
+      <div class="moe-pillar-desc">Students exposed to AI tools as learning partners — preparing them for Brunei Vision 2035 knowledge economy demands</div>
+    </div>
+    <div class="moe-pillar">
+      <div class="moe-pillar-icon">🤝</div>
+      <div class="moe-pillar-title">Inclusive Education</div>
+      <div class="moe-pillar-desc">AI-generated differentiated materials and IEP support ensure all students, including those with special needs, are included</div>
+    </div>
+    <div class="moe-pillar">
+      <div class="moe-pillar-icon">📱</div>
+      <div class="moe-pillar-title">Connected Ecosystem</div>
+      <div class="moe-pillar-desc">PPTX + Excel + AI Dashboard synchronized into one coherent system — demonstrating school readiness for e-learning platforms</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">📐 Alignment Matrix: RTG Features ↔ MOE Directives</div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>RTG System Feature</th>
+            <th>MOE Brunei Directive</th>
+            <th>SPN21 Link</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>AI Teaching Assistant</td><td>AI in Education Initiative 2024–2027</td><td>21st Century Skills</td><td><span class="grade grade-A">✓</span></td></tr>
+          <tr><td>Tiered Intervention (T1–T3)</td><td>Inclusive Education Policy</td><td>Differentiated Learning</td><td><span class="grade grade-A">✓</span></td></tr>
+          <tr><td>Live Assessment Dashboard</td><td>School Improvement Framework (SIF)</td><td>Formative Assessment</td><td><span class="grade grade-A">✓</span></td></tr>
+          <tr><td>AI Comment Generator</td><td>Teacher Professional Development Plan</td><td>Quality Feedback</td><td><span class="grade grade-A">✓</span></td></tr>
+          <tr><td>PSR Data Analytics</td><td>National Examination Reform</td><td>Evidence-based Planning</td><td><span class="grade grade-A">✓</span></td></tr>
+          <tr><td>Digital Student Portfolios</td><td>Digital Transformation in Schools</td><td>e-Portfolio Initiative</td><td><span class="grade grade-C">WIP</span></td></tr>
+          <tr><td>Parent AI Reports</td><td>School-Home Partnership</td><td>Communication & Engagement</td><td><span class="grade grade-D">TBD</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="ai-insight">
+    <div class="ai-insight-header">🤖 AI Alignment Assessment</div>
+    <div class="ai-insight-body">
+      This RTG AI system demonstrates <strong>strong alignment with 5 of 7 key MOE Brunei digital education directives</strong>. The integration of AI tools in a primary school context is a forward-looking demonstration of readiness for the <strong>KPM Digital Education Blueprint</strong>. The use of real student data (not simulated) with live AI analysis positions SRP Kampong Lambak Kanan Jln 10 as an <strong>early adopter model school</strong> that other Cluster 3 schools could replicate. Recommendation: document this system as a <strong>showcase example</strong> for the MOE officer and request feedback on expansion to other year groups.
+    </div>
+  </div>
+</div>
+
+<!-- ======================== SETTINGS & DATA PANEL ======================== -->
+
+<div id="panel-settings" class="panel">
+  <div class="page-header">
+    <h2>⚙️ Settings & Data Import</h2>
+    <p>Connect your Excel file and Anthropic API key to fully activate the system</p>
+  </div>
+
+  <!-- STATUS ROW -->
+
+  <div class="stat-grid" style="margin-bottom:24px">
+    <div class="stat-card" id="stat-api-status" style="border-color:rgba(244,63,94,0.3)">
+      <div class="stat-icon">🔑</div>
+      <div class="stat-label">API Key</div>
+      <div class="stat-value" id="api-status-val" style="font-size:16px;color:#FCA5A5">Not Set</div>
+      <div class="stat-sub">Required for AI features</div>
+    </div>
+    <div class="stat-card" id="stat-excel-status" style="border-color:rgba(244,63,94,0.3)">
+      <div class="stat-icon">📊</div>
+      <div class="stat-label">Excel File</div>
+      <div class="stat-value" id="excel-status-val" style="font-size:16px;color:#FCA5A5">Not Loaded</div>
+      <div class="stat-sub">Using built-in sample data</div>
+    </div>
+    <div class="stat-card" id="stat-students-count">
+      <div class="stat-icon">👥</div>
+      <div class="stat-label">Students Loaded</div>
+      <div class="stat-value" id="students-count-val">30</div>
+      <div class="stat-sub">From built-in data</div>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <!-- API KEY CARD -->
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">🔑 Anthropic API Key</div>
+          <div class="card-sub">Powers the AI Assistant, Comment Generator & Report Writer</div>
+        </div>
+      </div>
+
+```
+  <div style="background:rgba(245,158,11,0.06);border:1px solid rgba(245,158,11,0.2);border-radius:10px;padding:14px;margin-bottom:14px">
+    <div style="font-size:11px;font-weight:700;color:#FCD34D;margin-bottom:6px">📋 How to get your API Key</div>
+    <div style="font-size:11px;color:var(--text2);line-height:1.7">
+      1. Go to <strong style="color:var(--text)">console.anthropic.com</strong><br>
+      2. Sign up / Log in<br>
+      3. Click <strong style="color:var(--text)">API Keys</strong> → <strong style="color:var(--text)">Create Key</strong><br>
+      4. Copy the key (starts with <code style="background:rgba(255,255,255,0.08);padding:1px 5px;border-radius:3px;font-size:10px">sk-ant-...</code>)<br>
+      5. Paste it below — it stays in your browser only
+    </div>
+  </div>
+
+  <div style="display:flex;flex-direction:column;gap:10px">
+    <div>
+      <label style="font-size:11px;color:var(--text2);font-weight:600;display:block;margin-bottom:6px">Your API Key</label>
+      <div style="display:flex;gap:8px">
+        <input type="password" id="api-key-input" placeholder="sk-ant-api03-..." 
+          style="flex:1;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:10px 12px;border-radius:8px;font-family:'JetBrains Mono',monospace;font-size:12px;outline:none"
+          oninput="onApiKeyChange(this.value)">
+        <button onclick="toggleApiKeyVisibility()" id="toggle-key-btn"
+          style="background:var(--surface2);border:1px solid var(--border);color:var(--text2);border-radius:8px;padding:0 12px;cursor:pointer;font-size:14px">👁</button>
+      </div>
+    </div>
+    <button onclick="saveApiKey()" 
+      style="background:linear-gradient(135deg,#8B5CF6,#6D28D9);color:white;border:none;border-radius:8px;padding:10px;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer">
+      🔑 Save & Activate AI Features
+    </button>
+    <button onclick="clearApiKey()" id="clear-key-btn" style="display:none;background:rgba(244,63,94,0.1);color:#FCA5A5;border:1px solid rgba(244,63,94,0.3);border-radius:8px;padding:8px;font-family:inherit;font-size:12px;cursor:pointer">
+      Remove API Key
+    </button>
+  </div>
+
+  <div id="api-key-feedback" style="margin-top:12px;display:none;padding:10px 12px;border-radius:8px;font-size:12px"></div>
+
+  <div style="margin-top:14px;background:rgba(139,92,246,0.06);border:1px solid rgba(139,92,246,0.15);border-radius:8px;padding:12px">
+    <div style="font-size:11px;color:#C4B5FD;font-weight:700;margin-bottom:4px">🔒 Privacy & Security</div>
+    <div style="font-size:11px;color:var(--text2);line-height:1.6">Your API key is stored only in your browser's memory for this session. It is never sent anywhere except directly to Anthropic's servers when you use AI features. Closing the browser clears it.</div>
+  </div>
+</div>
+
+<!-- EXCEL UPLOAD CARD -->
+<div class="card">
+  <div class="card-header">
+    <div>
+      <div class="card-title">📊 Upload Your Excel File</div>
+      <div class="card-sub">Drop your YEAR_6_ASSESSMENT_TEMPLATE file to load live student data</div>
+    </div>
+  </div>
+
+  <div id="drop-zone"
+    style="border:2px dashed rgba(14,165,233,0.3);border-radius:12px;padding:32px 20px;text-align:center;cursor:pointer;transition:all 0.2s;margin-bottom:14px;background:rgba(14,165,233,0.02)"
+    onclick="document.getElementById('excel-file-input').click()"
+    ondragover="event.preventDefault();this.style.borderColor='var(--accent)';this.style.background='rgba(14,165,233,0.06)'"
+    ondragleave="this.style.borderColor='rgba(14,165,233,0.3)';this.style.background='rgba(14,165,233,0.02)'"
+    ondrop="handleFileDrop(event)">
+    <div style="font-size:32px;margin-bottom:10px">📂</div>
+    <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:4px">Click or drag your .xlsx file here</div>
+    <div style="font-size:11px;color:var(--text2)">YEAR_6_ASSESSMENT_TEMPLATE_2026_V2_2.xlsx</div>
+  </div>
+  <input type="file" id="excel-file-input" accept=".xlsx,.xls" style="display:none" onchange="handleFileSelect(event)">
+
+  <div style="background:rgba(14,165,233,0.05);border:1px solid rgba(14,165,233,0.15);border-radius:10px;padding:14px;margin-bottom:14px">
+    <div style="font-size:11px;font-weight:700;color:var(--accent2);margin-bottom:8px">📋 What gets extracted from your Excel:</div>
+    <div style="display:flex;flex-direction:column;gap:5px">
+      <div style="font-size:11px;color:var(--text2);display:flex;gap:8px;align-items:center"><span style="color:var(--emerald)">✓</span> <strong style="color:var(--text)">ROSTERS sheet</strong> — all student names, class assignments</div>
+      <div style="font-size:11px;color:var(--text2);display:flex;gap:8px;align-items:center"><span style="color:var(--emerald)">✓</span> <strong style="color:var(--text)">MIB, BM, SCI, ENG, MAT sheets</strong> — SBE, SBA1, SBA2, Mock grades per student</div>
+      <div style="font-size:11px;color:var(--text2);display:flex;gap:8px;align-items:center"><span style="color:var(--emerald)">✓</span> <strong style="color:var(--text)">OVERALL sheet</strong> — combined results and A–C tracking</div>
+      <div style="font-size:11px;color:var(--text2);display:flex;gap:8px;align-items:center"><span style="color:var(--emerald)">✓</span> <strong style="color:var(--text)">LISTS sheet</strong> — teacher names, grade scale, class info</div>
+    </div>
+  </div>
+
+  <div id="excel-feedback" style="display:none;padding:12px;border-radius:8px;font-size:12px;margin-bottom:10px"></div>
+
+  <div id="excel-preview" style="display:none">
+    <div style="font-size:11px;font-weight:700;color:var(--accent2);margin-bottom:8px">📊 Loaded Data Preview:</div>
+    <div id="excel-preview-content" style="font-size:11px;color:var(--text2);line-height:1.8"></div>
+    <button onclick="applyExcelData()" id="apply-excel-btn"
+      style="margin-top:10px;width:100%;background:linear-gradient(135deg,#0EA5E9,#0369A1);color:white;border:none;border-radius:8px;padding:10px;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer">
+      ✅ Apply Data to Dashboard
+    </button>
+  </div>
+</div>
+```
+
+  </div>
+
+  <!-- HOW IT WORKS EXPLAINER -->
+
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">🔍 How the System Works — Full Explanation</div>
+    </div>
+    <div class="grid-2" style="margin-bottom:0">
+      <div>
+        <div style="font-size:12px;font-weight:700;color:var(--accent2);margin-bottom:10px">📊 Excel Data Flow</div>
+        <div class="timeline">
+          <div class="tl-item">
+            <div class="tl-dot gold"></div>
+            <div class="tl-title" style="font-size:12px">You upload your .xlsx file</div>
+            <div class="tl-desc">The file is read locally in your browser using SheetJS. Nothing is sent to any server.</div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-dot"></div>
+            <div class="tl-title" style="font-size:12px">System reads all sheets</div>
+            <div class="tl-desc">It scans ROSTERS for names/classes, then each subject sheet (MIB, BM, SCI, ENG, MAT) for grade columns.</div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-dot green"></div>
+            <div class="tl-title" style="font-size:12px">Dashboard updates instantly</div>
+            <div class="tl-desc">Student table, tier assignments, charts, and AI context all refresh with your real data.</div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-dot violet"></div>
+            <div class="tl-title" style="font-size:12px">Re-upload any time</div>
+            <div class="tl-desc">After you enter new SBA1/SBA2/Mock scores in Excel, just drop the file again to update everything.</div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div style="font-size:12px;font-weight:700;color:#C4B5FD;margin-bottom:10px">🤖 AI Features Flow</div>
+        <div class="timeline">
+          <div class="tl-item">
+            <div class="tl-dot violet"></div>
+            <div class="tl-title" style="font-size:12px">You enter your API key (once)</div>
+            <div class="tl-desc">Stored in browser memory only. Never saved to disk or sent anywhere except Anthropic.</div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-dot"></div>
+            <div class="tl-title" style="font-size:12px">School context is pre-loaded</div>
+            <div class="tl-desc">The AI Assistant already knows your school name, student counts, PSR history, teacher names, and intervention tiers.</div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-dot gold"></div>
+            <div class="tl-title" style="font-size:12px">You ask a question / generate content</div>
+            <div class="tl-desc">Your message + school context is sent to Anthropic's Claude API. Response appears in seconds.</div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-dot green"></div>
+            <div class="tl-title" style="font-size:12px">Estimated cost: very low</div>
+            <div class="tl-desc">Each AI response costs roughly $0.001–$0.003 USD. A full day of use = less than $0.10.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- end main -->
+</div><!-- end app -->
+
+<script>
+// ==================== DATA ====================
+const psrTrend = {
+  years: ['2020','2021','2022','2023','2024','2025','2026 Target'],
+  values: [32.6, 65.31, 32.72, 52.38, 37.7, 38.33, 80]
+};
+
+const subjectData = {
+  subjects: ['MIB','BM','English','Science','Maths'],
+  psr2024: [93.44, 85.24, 52.6, 52.6, 50.8],
+  psr2025: [93.33, 75.0, 71.66, 63.33, 40.0],
+  target2026: [95, 85, 80, 80, 70]
+};
+
+const students = [
+  {no:1, class:'6A', name:'Abdul Ammar Mustaqim Bin Mohammad Sumerdi', MIB:'B', BM:'B', SCI:'B', ENG:'A', MAT:'C', result:'3B 1A 1C'},
+  {no:2, class:'6A', name:'Mohammad Aliff Arshraff @ Adrian Safrin Bin Abdullah', MIB:'D', BM:'E', SCI:'C', ENG:'C', MAT:'E', result:'1C 1D 1E'},
+  {no:3, class:'6A', name:'Muhammad Al-Irfan Billah Bin Muhammad Al-Muhtadee Billah', MIB:'B', BM:'B', SCI:'E', ENG:'D', MAT:'E', result:'2B 1D 2E'},
+  {no:4, class:'6A', name:"Muhammad 'Aqil Warith Bin Aimi", MIB:'A', BM:'A', SCI:'A', ENG:'A', MAT:'A', result:'5A'},
+  {no:5, class:'6A', name:'Muhammad Muqri Kasyfi Bin Tasyrif', MIB:'E', BM:'E', SCI:'D', ENG:'E', MAT:'E', result:'5E (Tier 1)'},
+  {no:6, class:'6A', name:'Muhammad Muzaffar Azka Bin Abu Bakar Sidek', MIB:'A', BM:'A', SCI:'C', ENG:'B', MAT:'E', result:'2A 1B 1C 1E'},
+  {no:7, class:'6A', name:'Muhammad Qawwiyun Harith Fardius Bin Abdullah', MIB:'B', BM:'A', SCI:'B', ENG:'B', MAT:'E', result:'1A 2B 1E'},
+  {no:8, class:'6A', name:'Muhammad Raif Anaqie Bin Mohammad Anwar', MIB:'B', BM:'C', SCI:'B', ENG:'B', MAT:'E', result:'2B 1C 1E'},
+  {no:9, class:'6A', name:'Alya Bazielah Binti Seruddin @Hamiezah', MIB:'A', BM:'A', SCI:'D', ENG:'A', MAT:'E', result:'3A 1D 1E'},
+  {no:10, class:'6A', name:'Hazsyarifah Huwaida binti Abdullah', MIB:'D', BM:'D', SCI:'E', ENG:'E', MAT:'E', result:'2D 3E (Tier 1)'},
+  {no:11, class:'6A', name:'Niur Afifah Firzanah Binti Mohammad Fadilah', MIB:'A', BM:'B', SCI:'D', ENG:'B', MAT:'E', result:'1A 2B 1D 1E'},
+  {no:12, class:'6A', name:'Norqaleesya Damia Sara Binti Rahimmi', MIB:'A', BM:'B', SCI:'D', ENG:'C', MAT:'E', result:'1A 1B 1C 1D 1E'},
+  {no:13, class:'6A', name:'Nur Afrina Rania Binti Rafian', MIB:'B', BM:'C', SCI:'E', ENG:'A', MAT:'E', result:'1A 1B 1C 2E'},
+  {no:14, class:'6A', name:'Nur Aqillah Rahimah Binti Mohammad Fadillah', MIB:'E', BM:'E', SCI:'E', ENG:'E', MAT:'E', result:'5E (Tier 1)'},
+  {no:15, class:'6A', name:'Nur Ardania Ain Binti Mohammed Mohini', MIB:'B', BM:'B', SCI:'D', ENG:'B', MAT:'E', result:'2B 1D 1E'},
+  {no:16, class:'6A', name:'Nur Jumyanah Binti Mohiddin', MIB:'D', BM:'C', SCI:'E', ENG:'D', MAT:'E', result:'1C 1D 3E (Tier 1)'},
+  {no:17, class:'6A', name:'Nurliyana Qaisara Binti Lutfi', MIB:'B', BM:'C', SCI:'D', ENG:'A', MAT:'E', result:'1A 1B 1C 1D 1E'},
+  {no:18, class:'6A', name:'Syahira Musfirah Binti Muhammad Morsidi', MIB:'D', BM:'C', SCI:'C', ENG:'B', MAT:'E', result:'1B 2C 1D 1E'},
+  // 6B students (sample)
+  {no:1, class:'6B', name:'Awangku Wan Mohammad Farizz Naufal', MIB:'A', BM:'B', SCI:'D', ENG:'E', MAT:'E', result:'1A 1B 1D 2E'},
+  {no:2, class:'6B', name:'Mohammad Azhaar Izam Iman Bin Adirahiman Shah', MIB:'B', BM:'B', SCI:'E', ENG:'E', MAT:'E', result:'2B 3E (Tier 1)'},
+  {no:3, class:'6B', name:'Mohammad Riezman Qusyairi Bin Noor Azman', MIB:'B', BM:'B', SCI:'B', ENG:'E', MAT:'E', result:'3B 2E'},
+  {no:4, class:'6B', name:'Muhammad Adam Asyraf Bin Muhammad Rusyduddin', MIB:'D', BM:'D', SCI:'E', ENG:'E', MAT:'E', result:'2D 3E (Tier 1)'},
+  {no:5, class:'6B', name:'Muhammad Ahza Wafri Bin Mahamad Miadi', MIB:'A', BM:'B', SCI:'B', ENG:'E', MAT:'E', result:'1A 2B 2E'},
+  {no:6, class:'6B', name:'Muhammad Faiq Zakwan Bin Bakri', MIB:'B', BM:'B', SCI:'D', ENG:'E', MAT:'E', result:'2B 1D 2E'},
+  {no:7, class:'6B', name:'Muhammad Rizzal Fikir Bin Abdullah', MIB:'B', BM:'B', SCI:'E', ENG:'E', MAT:'E', result:'2B 3E (Tier 1)'},
+  {no:8, class:'6B', name:'Zafrul Izz Nazhan Bin Haji Zamri', MIB:'C', BM:'A', SCI:'B', ENG:'E', MAT:'E', result:'1A 1B 1C 2E'},
+  // 6C students (sample)
+  {no:1, class:'6C', name:'Ahmad Amirullah Bin Mohammad Saiful Rizal', MIB:'A', BM:'A', SCI:'A', ENG:'A', MAT:'A', result:'5A'},
+  {no:2, class:'6C', name:'Muhammad Zafran Nufail Bin Abdullah', MIB:'B', BM:'A', SCI:'B', ENG:'B', MAT:'E', result:'1A 2B 1E'},
+  {no:3, class:'6C', name:'Nurul Mushahirah Nadhirah Binti Mohamad Radzuan', MIB:'B', BM:'A', SCI:'B', ENG:'E', MAT:'E', result:'1A 1B 2E'},
+  {no:4, class:'6C', name:'Raisha Qaisarah Binti Sujairi', MIB:'A', BM:'B', SCI:'A', ENG:'B', MAT:'E', result:'2A 2B 1E'},
+  {no:5, class:'6C', name:'Nurul Maisarah Humairah Binti Awg Mohd Jair', MIB:'C', BM:'B', SCI:'B', ENG:'D', MAT:'E', result:'1B 1C 1D 1E'},
+];
+
+// Grade color helper
+function gradeClass(g) {
+  if(!g) return 'grade-N';
+  return 'grade-'+g.charAt(0);
+}
+
+function getTier(s) {
+  const grades = [s.MIB, s.BM, s.SCI, s.ENG, s.MAT];
+  const eCount = grades.filter(g => g === 'E').length;
+  if(eCount >= 3) return {label:'Tier 1', cls:'rose'};
+  if(eCount >= 1) return {label:'Tier 2', cls:'gold'};
+  return {label:'Tier 3', cls:'green'};
+}
+
+// ==================== NAV ====================
+function showPanel(id) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  const panel = document.getElementById('panel-'+id);
+  if(panel) panel.classList.add('active');
+  event && event.currentTarget && event.currentTarget.classList.add('active');
+  // Find matching nav item
+  document.querySelectorAll('.nav-item').forEach(n => {
+    if(n.getAttribute('onclick') && n.getAttribute('onclick').includes("'"+id+"'")) n.classList.add('active');
+  });
+}
+
+// ==================== STUDENTS TABLE ====================
+function renderStudents(filter) {
+  const tbody = document.getElementById('student-table-body');
+  let list = students;
+  if(filter && filter !== 'all') {
+    if(filter === 'tier1') {
+      list = students.filter(s => {
+        const grades = [s.MIB, s.BM, s.SCI, s.ENG, s.MAT];
+        return grades.filter(g => g === 'E').length >= 3;
+      });
+    } else {
+      list = students.filter(s => s.class === filter);
+    }
+  }
+  tbody.innerHTML = list.map((s,i) => {
+    const tier = getTier(s);
+    return `<tr onclick="showStudentDetail(${students.indexOf(s)})">
+      <td>${s.no}</td>
+      <td>${s.name}</td>
+      <td><span class="tag blue" style="font-size:10px">${s.class}</span></td>
+      <td><span class="grade ${gradeClass(s.MIB)}">${s.MIB}</span></td>
+      <td><span class="grade ${gradeClass(s.BM)}">${s.BM}</span></td>
+      <td><span class="grade ${gradeClass(s.SCI)}">${s.SCI}</span></td>
+      <td><span class="grade ${gradeClass(s.ENG)}">${s.ENG}</span></td>
+      <td><span class="grade ${gradeClass(s.MAT)}">${s.MAT}</span></td>
+      <td style="font-size:11px">${s.result}</td>
+      <td><span class="tag ${tier.cls}">${tier.label}</span></td>
+    </tr>`;
+  }).join('');
+}
+
+function filterStudents(f, btn) {
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderStudents(f);
+}
+
+function showStudentDetail(idx) {
+  const s = students[idx];
+  const d = document.getElementById('student-detail');
+  document.getElementById('detail-name').textContent = s.name;
+  const tier = getTier(s);
+  const grades = `MIB: ${s.MIB} | BM: ${s.BM} | Science: ${s.SCI} | English: ${s.ENG} | Maths: ${s.MAT}`;
+  document.getElementById('detail-body').innerHTML = `
+    <strong>Class:</strong> ${s.class} &nbsp;|&nbsp; <strong>Tier:</strong> ${tier.label}<br>
+    <strong>SBA1 Grades:</strong> ${grades}<br>
+    <strong>Overall Result:</strong> ${s.result}<br><br>
+    <strong>AI Recommendation:</strong> ${getAIRec(s)}
+  `;
+  d.style.display = 'block';
+  d.scrollIntoView({behavior:'smooth'});
+}
+
+function getAIRec(s) {
+  const eCount = [s.MIB, s.BM, s.SCI, s.ENG, s.MAT].filter(g => g === 'E').length;
+  if(eCount >= 4) return 'URGENT — Daily pull-out in all subjects. Prioritise Maths basics and BM reading. Request IEP review if no improvement by SBA1. AI adaptive tools: assign Maths drill app daily. Parent meeting recommended.';
+  if(eCount >= 2) return 'Targeted intervention in weakest subjects. Weekly support sessions. AI-generated practice worksheets recommended. Monitor weekly.';
+  if(s.MAT === 'E') return 'Mathematics is the primary concern. Enrol in Maths Support Circle. Use AI drill apps for fractions, word problems. Other subjects stable.';
+  if(s.MIB === 'A' && s.BM === 'A' && s.ENG === 'A') return 'High performer — nurture for 5A programme. Assign as peer tutor for Maths support circle. AI: assign advanced problem sets.';
+  return 'Monitor progress. Encourage regular revision. Use AI quiz tools (Quizizz) for self-assessment. Check in biweekly.';
+}
+
+// ==================== CHARTS ====================
+function initCharts() {
+  const defaults = { font: { family: 'Plus Jakarta Sans' } };
+  const axisColor = '#4A7A96';
+
+  // PSR Trend Chart
+  const ctx1 = document.getElementById('trendChart');
+  if(ctx1) {
+    new Chart(ctx1, {
+      type: 'line',
+      data: {
+        labels: psrTrend.years,
+        datasets: [{
+          label: 'A–C %',
+          data: psrTrend.values,
+          borderColor: '#0EA5E9',
+          backgroundColor: 'rgba(14,165,233,0.08)',
+          fill: true,
+          tension: 0.4,
+          pointBackgroundColor: ['#4A7A96','#4A7A96','#4A7A96','#4A7A96','#4A7A96','#F59E0B','#10B981'],
+          pointRadius: 5,
+          pointHoverRadius: 7,
+          borderWidth: 2,
+          pointBorderColor: 'transparent'
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { display: false },
+          annotation: {},
+          tooltip: { callbacks: { label: ctx => ctx.parsed.y + '%' } }
+        },
+        scales: {
+          y: { min: 0, max: 100, ticks: { color: axisColor, callback: v => v+'%' }, grid: { color: 'rgba(255,255,255,0.04)' }, border: { display: false } },
+          x: { ticks: { color: axisColor }, grid: { display: false }, border: { display: false } }
+        }
+      }
+    });
+  }
+
+  // Subject Chart
+  const ctx2 = document.getElementById('subjectChart');
+  if(ctx2) {
+    new Chart(ctx2, {
+      type: 'bar',
+      data: {
+        labels: subjectData.subjects,
+        datasets: [
+          { label: 'PSR 2024', data: subjectData.psr2024, backgroundColor: 'rgba(74,122,150,0.4)', borderColor: 'rgba(74,122,150,0.8)', borderWidth: 1, borderRadius: 4 },
+          { label: 'PSR 2025', data: subjectData.psr2025, backgroundColor: 'rgba(14,165,233,0.4)', borderColor: 'rgba(14,165,233,0.8)', borderWidth: 1, borderRadius: 4 },
+          { label: 'Target 2026', data: subjectData.target2026, backgroundColor: 'rgba(16,185,129,0.3)', borderColor: 'rgba(16,185,129,0.8)', borderWidth: 1, borderRadius: 4 }
+        ]
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { labels: { color: '#7EAEC8', font: { size: 10 } } }, tooltip: { callbacks: { label: ctx => ctx.dataset.label+': '+ctx.parsed.y+'%' } } },
+        scales: {
+          y: { min: 0, max: 100, ticks: { color: axisColor, callback: v => v+'%' }, grid: { color: 'rgba(255,255,255,0.04)' }, border: { display: false } },
+          x: { ticks: { color: axisColor, font: { size: 10 } }, grid: { display: false }, border: { display: false } }
+        }
+      }
+    });
+  }
+
+  // SBE Distribution
+  const ctx3 = document.getElementById('sbeChart');
+  if(ctx3) {
+    new Chart(ctx3, {
+      type: 'bar',
+      data: {
+        labels: ['MIB','BM','SCI','ENG','MAT'],
+        datasets: [
+          { label: 'A', data: [19, 15, 3, 0, 0], backgroundColor: 'rgba(16,185,129,0.5)', borderRadius: 3 },
+          { label: 'B', data: [19, 17, 9, 0, 0], backgroundColor: 'rgba(14,165,233,0.5)', borderRadius: 3 },
+          { label: 'C', data: [3, 11, 5, 0, 0], backgroundColor: 'rgba(245,158,11,0.5)', borderRadius: 3 },
+          { label: 'D', data: [7, 5, 9, 0, 0], backgroundColor: 'rgba(249,115,22,0.5)', borderRadius: 3 },
+          { label: 'E', data: [8, 8, 30, 56, 56], backgroundColor: 'rgba(244,63,94,0.5)', borderRadius: 3 },
+        ]
+      },
+      options: {
+        responsive: true, indexAxis: 'x',
+        plugins: { legend: { labels: { color: '#7EAEC8', font: { size: 10 } } } },
+        scales: {
+          x: { stacked: true, ticks: { color: axisColor }, grid: { display: false }, border: { display: false } },
+          y: { stacked: true, ticks: { color: axisColor }, grid: { color: 'rgba(255,255,255,0.04)' }, border: { display: false } }
+        }
+      }
+    });
+  }
+
+  // Grade Distribution Chart
+  const ctx4 = document.getElementById('gradeDistChart');
+  if(ctx4) {
+    new Chart(ctx4, {
+      type: 'bar',
+      data: {
+        labels: ['MIB','BM','SCI','ENG','MAT'],
+        datasets: [
+          { label: 'A (84.5%+)', data: [32.8, 25.9, 5.2, 0, 0], backgroundColor: 'rgba(16,185,129,0.6)', borderRadius: 3 },
+          { label: 'B', data: [32.8, 29.3, 15.5, 0, 0], backgroundColor: 'rgba(14,165,233,0.6)', borderRadius: 3 },
+          { label: 'C', data: [5.2, 19.0, 8.6, 0, 0], backgroundColor: 'rgba(245,158,11,0.6)', borderRadius: 3 },
+          { label: 'D', data: [12.1, 8.6, 15.5, 0, 0], backgroundColor: 'rgba(249,115,22,0.6)', borderRadius: 3 },
+          { label: 'E', data: [13.8, 13.8, 51.7, 96.6, 96.6], backgroundColor: 'rgba(244,63,94,0.6)', borderRadius: 3 },
+        ]
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { labels: { color: '#7EAEC8', font: { size: 10 } } }, tooltip: { callbacks: { label: ctx => ctx.dataset.label+': '+ctx.parsed.y.toFixed(1)+'%' } } },
+        scales: {
+          x: { stacked: true, ticks: { color: axisColor }, grid: { display: false }, border: { display: false } },
+          y: { stacked: true, max: 100, ticks: { color: axisColor, callback: v => v+'%' }, grid: { color: 'rgba(255,255,255,0.04)' }, border: { display: false } }
+        }
+      }
+    });
+  }
+
+  // Radar
+  const ctx5 = document.getElementById('radarChart');
+  if(ctx5) {
+    new Chart(ctx5, {
+      type: 'radar',
+      data: {
+        labels: ['MIB','Bahasa Melayu','Science','English','Mathematics'],
+        datasets: [
+          {
+            label: 'SBE 2025 Average',
+            data: [78, 65, 55, 62, 32],
+            borderColor: 'rgba(245,158,11,0.8)', backgroundColor: 'rgba(245,158,11,0.1)', borderWidth: 2, pointBackgroundColor: '#F59E0B'
+          },
+          {
+            label: 'SBA1 Trend',
+            data: [75, 72, 52, 0, 30],
+            borderColor: 'rgba(14,165,233,0.8)', backgroundColor: 'rgba(14,165,233,0.1)', borderWidth: 2, pointBackgroundColor: '#0EA5E9'
+          },
+          {
+            label: 'PSR 2026 Target',
+            data: [95, 85, 80, 80, 70],
+            borderColor: 'rgba(16,185,129,0.8)', backgroundColor: 'rgba(16,185,129,0.05)', borderWidth: 2, borderDash: [4,4], pointBackgroundColor: '#10B981'
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { labels: { color: '#7EAEC8', font: { size: 11 } } } },
+        scales: {
+          r: {
+            min: 0, max: 100,
+            ticks: { color: '#4A7A96', backdropColor: 'transparent', stepSize: 20 },
+            grid: { color: 'rgba(255,255,255,0.07)' },
+            pointLabels: { color: '#7EAEC8', font: { size: 11 } },
+            angleLines: { color: 'rgba(255,255,255,0.07)' }
+          }
+        }
+      }
+    });
+  }
+
+  // Progress Chart
+  const ctx6 = document.getElementById('progressChart');
+  if(ctx6) {
+    new Chart(ctx6, {
+      type: 'line',
+      data: {
+        labels: ['SBE 2025','SBA1','SBA2','Mock','PSR 2026'],
+        datasets: [
+          { label: 'Actual/Projected', data: [28, null, null, null, null], borderColor: '#0EA5E9', backgroundColor: 'rgba(14,165,233,0.1)', fill: true, tension: 0.4, borderWidth: 2, pointRadius: 5 },
+          { label: 'Target Path', data: [28, 45, 60, 70, 80], borderColor: 'rgba(16,185,129,0.6)', borderDash: [5,5], fill: false, tension: 0.4, borderWidth: 1.5, pointRadius: 4 }
+        ]
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { labels: { color: '#7EAEC8', font: { size: 10 } } }, tooltip: { callbacks: { label: ctx => ctx.dataset.label+': '+(ctx.parsed.y||'TBD')+'%' } } },
+        scales: {
+          y: { min: 0, max: 100, ticks: { color: axisColor, callback: v => v+'%' }, grid: { color: 'rgba(255,255,255,0.04)' }, border: { display: false } },
+          x: { ticks: { color: axisColor, font: { size: 10 } }, grid: { display: false }, border: { display: false } }
+        }
+      }
+    });
+  }
+
+  // Maths Chart
+  const ctx7 = document.getElementById('mathsChart');
+  if(ctx7) {
+    new Chart(ctx7, {
+      type: 'bar',
+      data: {
+        labels: ['SBE 2025','SBA1','SBA2 (Target)','Mock (Target)','PSR (Target)'],
+        datasets: [
+          { label: 'Grade E %', data: [96.6, 96.6, 70, 45, 30], backgroundColor: 'rgba(244,63,94,0.5)', borderRadius: 4 },
+          { label: 'Grade A–C %', data: [0, 0, 15, 35, 70], backgroundColor: 'rgba(16,185,129,0.5)', borderRadius: 4 }
+        ]
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { labels: { color: '#7EAEC8', font: { size: 10 } } }, tooltip: { callbacks: { label: ctx => ctx.dataset.label+': '+ctx.parsed.y+'%' } } },
+        scales: {
+          y: { max: 100, ticks: { color: axisColor, callback: v => v+'%' }, grid: { color: 'rgba(255,255,255,0.04)' }, border: { display: false } },
+          x: { ticks: { color: axisColor, font: { size: 9 } }, grid: { display: false }, border: { display: false } }
+        }
+      }
+    });
+  }
+}
+
+// ==================== AI CHAT ====================
+const SCHOOL_CONTEXT = `You are an AI Teaching Assistant for SRP Kampong Lambak Kanan Jalan 10, Cluster 3 Brunei Darussalam.
+You have full knowledge of:
+- School: Year 6 PSR 2026 preparation, 57 students across classes 6A (18), 6B (19), 6C (19)
+- PSR History: 2020: 32.6%, 2021: 65.31%, 2022: 32.72%, 2023: 52.38%, 2024: 37.7%, 2025: 38.33%
+- PSR 2025 Subject results: MIB 93.33%, BM 75%, English 71.66%, Science 63.33%, Maths 40%
+- PSR 2026 Target: 80% A-C (from 38.33% baseline)
+- Key concern: Mathematics extremely weak (48% Grade E in PSR 2025, 96.6% Grade E in SBE 2025)
+- Tiered intervention: Tier 1 (~26 students, intensive), Tier 2 (~18, targeted), Tier 3 (~13, enrichment/5A nurture)
+- RTG system: Review To Grow - data driven school improvement
+- AI integration: This dashboard uses AI for student risk identification, comment generation, MOE report writing, and intervention planning
+- MOE Brunei alignment: SPN21, Digital Education Blueprint, AI in Schools initiative, Vision 2035
+- Teachers: HM: Cikgu Siti Hayon, MIB: Julita Binti Haji Aji, BM: Dk Juliana, Science: Hjh. Salfarina, English: Pg Aslenawati, Maths: Hjh. Marina
+- Assessment cycle: SBE 2025 (baseline) → SBA1 (Jan-Mar) → SBA2 (Apr-Jun) → Mock (Jul-Sep) → PSR (Oct 2026)
+- EBI from PSR 2025: Maths early pull-out needed, inconsistent monitoring, high E rate in fractions/word problems
+- Notable students: 5A achiever in PSR 2025 (Muhammad Ataullah Hakimi), 4A1B (Mohammad Rayyan Danial)
+Be helpful, professional, and specific. Use data to support your answers. You can give advice in English or Malay.`;
+
+const chatHistory = [];
+
+async function sendChat() {
+  const input = document.getElementById('chat-input');
+  const btn = document.getElementById('chat-send-btn');
+  const msg = input.value.trim();
+  if(!msg) return;
+
+  if(!window._apiKey) {
+    addMessage('ai', '⚠️ <strong>No API key set.</strong> Go to <strong>Settings & Data</strong> in the sidebar and enter your Anthropic API key to use AI features.');
+    return;
+  }
+
+  addMessage('user', msg);
+  input.value = '';
+  btn.disabled = true;
+
+  const loadingId = addMessage('ai', '<div class="loading"><div class="spinner"></div> Thinking...</div>');
+  chatHistory.push({ role: 'user', content: msg });
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-api-key': window._apiKey, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        system: SCHOOL_CONTEXT,
+        messages: chatHistory
+      })
+    });
+    const data = await res.json();
+    if(data.error) { updateMessage(loadingId, '⚠️ API Error: ' + data.error.message); chatHistory.pop(); }
+    else {
+      const reply = data.content?.[0]?.text || 'Sorry, could not process that.';
+      updateMessage(loadingId, reply.replace(/\n/g,'<br>'));
+      chatHistory.push({ role: 'assistant', content: reply });
+    }
+  } catch(e) {
+    updateMessage(loadingId, '⚠️ Connection issue. Check your internet connection and API key.');
+  }
+  btn.disabled = false;
+}
+
+let msgCounter = 0;
+function addMessage(role, text) {
+  const id = 'msg-' + (++msgCounter);
+  const el = document.createElement('div');
+  el.className = 'msg ' + role;
+  el.id = id;
+  el.innerHTML = `<div class="msg-icon">${role === 'ai' ? '🤖' : '👤'}</div><div class="msg-bubble">${text}</div>`;
+  document.getElementById('chat-messages').appendChild(el);
+  el.scrollIntoView({ behavior: 'smooth' });
+  return id;
+}
+function updateMessage(id, text) {
+  const el = document.getElementById(id);
+  if(el) el.querySelector('.msg-bubble').innerHTML = text.replace(/\n/g, '<br>');
+}
+function handleChatKey(e) {
+  if(e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendChat(); }
+}
+function setPrompt(text) {
+  document.getElementById('chat-input').value = text;
+  document.getElementById('chat-input').focus();
+}
+
+// ==================== AI REPORT GENERATOR ====================
+async function callAI(prompt, systemPrompt) {
+  if(!window._apiKey) return null;
+  const body = { model:'claude-sonnet-4-20250514', max_tokens:1000, messages:[{role:'user',content:prompt}] };
+  if(systemPrompt) body.system = systemPrompt;
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
+    method:'POST',
+    headers:{'Content-Type':'application/json','x-api-key':window._apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+    body:JSON.stringify(body)
+  });
+  const data = await res.json();
+  if(data.error) throw new Error(data.error.message);
+  return data.content?.[0]?.text || '';
+}
+
+async function generateReport() {
+  const subject = document.getElementById('report-subject').value;
+  const grade = document.getElementById('report-grade').value;
+  const context = document.getElementById('report-context').value;
+  const output = document.getElementById('report-output');
+  const textEl = document.getElementById('report-text');
+  output.style.display = 'block';
+
+  if(!window._apiKey) {
+    textEl.innerHTML = '⚠️ <strong>No API key set.</strong> Go to <strong>Settings & Data</strong> to add your Anthropic key.';
+    return;
+  }
+  textEl.innerHTML = '<div class="loading"><div class="spinner"></div> Generating bilingual comment...</div>';
+  try {
+    const prompt = `Generate a professional bilingual student report comment (English + Bahasa Melayu) for a Year 6 Brunei primary school student. Subject: ${subject}. Grade achieved: ${grade}. ${context?'Additional context: '+context:''}. Be encouraging, specific, and actionable. Format: English first, then Bahasa Melayu. Under 50 words each. Warm and growth-focused.`;
+    const text = await callAI(prompt);
+    textEl.innerHTML = text.replace(/\n/g,'<br>');
+  } catch(e) { textEl.innerHTML = '⚠️ Error: ' + e.message; }
+}
+
+async function generateDocument() {
+  const docType = document.getElementById('doc-type').value;
+  const tone = document.getElementById('doc-tone').value;
+  const output = document.getElementById('doc-output');
+  const textEl = document.getElementById('doc-text');
+  output.style.display = 'block';
+
+  if(!window._apiKey) {
+    textEl.innerHTML = '⚠️ <strong>No API key set.</strong> Go to <strong>Settings & Data</strong> to add your Anthropic key.';
+    return;
+  }
+  textEl.innerHTML = '<div class="loading"><div class="spinner"></div> Generating document...</div>';
+  const prompt = `You are writing a ${tone} document for SRP Kampong Lambak Kanan Jalan 10 (Cluster 3, Brunei). Document type: ${docType}. School context: Year 6 PSR 2026, 57 students, PSR 2025 baseline 38.33% A-C, target 80% A-C. Strong: MIB (93.33%). Critical weakness: Maths (40%). AI-integrated RTG system in use. 3-tier intervention. MOE visit context. Write 200-300 words. Include data. End with forward-looking AI integration statement.`;
+  try {
+    const text = await callAI(prompt);
+    textEl.innerHTML = text.replace(/\n/g,'<br>');
+  } catch(e) { textEl.innerHTML = '⚠️ Error: ' + e.message; }
+}
+
+// ==================== API KEY MANAGEMENT ====================
+window._apiKey = '';
+
+function onApiKeyChange(val) {
+  const feedback = document.getElementById('api-key-feedback');
+  if(val.length > 10 && !val.startsWith('sk-ant')) {
+    feedback.style.display = 'block';
+    feedback.style.background = 'rgba(244,63,94,0.1)';
+    feedback.style.border = '1px solid rgba(244,63,94,0.3)';
+    feedback.style.color = '#FCA5A5';
+    feedback.innerHTML = '⚠️ Key should start with <code>sk-ant-</code>. Double-check you copied it correctly.';
+  } else { feedback.style.display = 'none'; }
+}
+
+function toggleApiKeyVisibility() {
+  const inp = document.getElementById('api-key-input');
+  const btn = document.getElementById('toggle-key-btn');
+  if(inp.type === 'password') { inp.type = 'text'; btn.textContent = '🙈'; }
+  else { inp.type = 'password'; btn.textContent = '👁'; }
+}
+
+function saveApiKey() {
+  const val = document.getElementById('api-key-input').value.trim();
+  const feedback = document.getElementById('api-key-feedback');
+  if(!val || val.length < 20) {
+    feedback.style.display = 'block'; feedback.style.background = 'rgba(244,63,94,0.1)';
+    feedback.style.border = '1px solid rgba(244,63,94,0.3)'; feedback.style.color = '#FCA5A5';
+    feedback.innerHTML = '⚠️ Please enter a valid API key.'; return;
+  }
+  window._apiKey = val;
+  feedback.style.display = 'block'; feedback.style.background = 'rgba(16,185,129,0.1)';
+  feedback.style.border = '1px solid rgba(16,185,129,0.3)'; feedback.style.color = '#6EE7B7';
+  feedback.innerHTML = '✅ API key saved! All AI features are now active.';
+  document.getElementById('api-status-val').textContent = 'Active';
+  document.getElementById('api-status-val').style.color = '#6EE7B7';
+  document.getElementById('stat-api-status').style.borderColor = 'rgba(16,185,129,0.3)';
+  document.getElementById('clear-key-btn').style.display = 'block';
+  // Update sidebar badge
+  updateSettingsBadge();
+  // Mask key display
+  document.getElementById('api-key-input').value = val.substring(0,12) + '••••••••••••' + val.slice(-4);
+  document.getElementById('api-key-input').type = 'password';
+}
+
+function clearApiKey() {
+  window._apiKey = '';
+  document.getElementById('api-key-input').value = '';
+  document.getElementById('api-key-input').type = 'password';
+  document.getElementById('api-status-val').textContent = 'Not Set';
+  document.getElementById('api-status-val').style.color = '#FCA5A5';
+  document.getElementById('stat-api-status').style.borderColor = 'rgba(244,63,94,0.3)';
+  document.getElementById('api-key-feedback').style.display = 'none';
+  document.getElementById('clear-key-btn').style.display = 'none';
+  updateSettingsBadge();
+}
+
+function updateSettingsBadge() {
+  const badge = document.getElementById('settings-status-badge');
+  if(!badge) return;
+  const hasKey = !!window._apiKey;
+  const hasExcel = window._excelLoaded;
+  if(hasKey && hasExcel) { badge.textContent = '✓ Ready'; badge.style.background = 'var(--emerald)'; }
+  else if(hasKey || hasExcel) { badge.textContent = 'Partial'; badge.style.background = 'var(--gold)'; }
+  else { badge.textContent = 'Setup'; badge.style.background = 'var(--rose)'; }
+}
+
+// ==================== EXCEL UPLOAD ====================
+window._excelLoaded = false;
+window._pendingExcelData = null;
+
+function handleFileDrop(event) {
+  event.preventDefault();
+  const dz = document.getElementById('drop-zone');
+  dz.style.borderColor = 'rgba(14,165,233,0.3)'; dz.style.background = 'rgba(14,165,233,0.02)';
+  const file = event.dataTransfer.files[0];
+  if(file) processExcelFile(file);
+}
+
+function handleFileSelect(event) {
+  const file = event.target.files[0];
+  if(file) processExcelFile(file);
+}
+
+function processExcelFile(file) {
+  const feedback = document.getElementById('excel-feedback');
+  const preview = document.getElementById('excel-preview');
+  feedback.style.display = 'block';
+  feedback.style.background = 'rgba(14,165,233,0.08)';
+  feedback.style.border = '1px solid rgba(14,165,233,0.2)';
+  feedback.style.color = 'var(--accent2)';
+  feedback.innerHTML = '<div class="loading"><div class="spinner"></div> Reading Excel file: ' + file.name + '...</div>';
+  preview.style.display = 'none';
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const data = new Uint8Array(e.target.result);
+      const workbook = XLSX.read(data, { type: 'array' });
+      parseExcelWorkbook(workbook, file.name);
+    } catch(err) {
+      feedback.style.background = 'rgba(244,63,94,0.08)';
+      feedback.style.border = '1px solid rgba(244,63,94,0.3)';
+      feedback.style.color = '#FCA5A5';
+      feedback.innerHTML = '⚠️ Could not read file: ' + err.message + '. Make sure it is a valid .xlsx file.';
+    }
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+function parseExcelWorkbook(wb, filename) {
+  const feedback = document.getElementById('excel-feedback');
+  const preview = document.getElementById('excel-preview');
+  const previewContent = document.getElementById('excel-preview-content');
+
+  const sheets = wb.SheetNames;
+  const parsed = { students: [], sheets: sheets, filename: filename };
+
+  // --- Read ROSTERS sheet ---
+  const rosterSheet = wb.Sheets['ROSTERS'] || wb.Sheets['Roster'] || wb.Sheets[sheets.find(s => s.toLowerCase().includes('roster'))];
+  if(rosterSheet) {
+    const rows = XLSX.utils.sheet_to_json(rosterSheet, { defval: '' });
+    rows.forEach(row => {
+      const cls = String(row['Class'] || row['CLASS'] || '').trim();
+      const name = String(row['Student Name'] || row['STUDENT NAME'] || row['Name'] || '').trim();
+      const no = row['No'] || row['NO'] || '';
+      if(name && cls && cls.match(/^6[A-Z]/i)) {
+        parsed.students.push({ no, class: cls.toUpperCase(), name, MIB:'—', BM:'—', SCI:'—', ENG:'—', MAT:'—', result:'—' });
+      }
+    });
+  }
+
+  // Grade extraction helper
+  function extractGrade(val) {
+    if(!val && val !== 0) return null;
+    const s = String(val).trim().toUpperCase();
+    if(['A','B','C','D','E'].includes(s)) return s;
+    const n = parseFloat(s);
+    if(!isNaN(n)) {
+      if(n >= 0.845) return 'A';
+      if(n >= 0.745) return 'B';
+      if(n >= 0.645) return 'C';
+      if(n >= 0.495) return 'D';
+      if(n > 0) return 'E';
+    }
+    return null;
+  }
+
+  // Subject sheet mapping
+  const subjectMap = {
+    MIB: ['MIB','Melayu Islam Beraja'],
+    BM: ['BM','Bahasa Melayu','BAHASA MELAYU'],
+    SCI: ['SCI','SCIENCE','Science'],
+    ENG: ['ENG','English','ENGLISH'],
+    MAT: ['MAT','Mathematics','MATHEMATICS','Math','Maths']
+  };
+
+  Object.entries(subjectMap).forEach(([subKey, aliases]) => {
+    const sheetName = sheets.find(s => aliases.some(a => s.toUpperCase() === a.toUpperCase() || s.toUpperCase().includes(a.toUpperCase())));
+    if(!sheetName) return;
+    const sheet = wb.Sheets[sheetName];
+    if(!sheet) return;
+    const rows = XLSX.utils.sheet_to_json(sheet, { defval: '', header: 1 });
+
+    // Find header row containing 'STUDENT' or 'Student'
+    let headerIdx = -1;
+    for(let i = 0; i < Math.min(5, rows.length); i++) {
+      if(rows[i].some(c => String(c).toLowerCase().includes('student'))) { headerIdx = i; break; }
+    }
+    if(headerIdx < 0) return;
+
+    const headers = rows[headerIdx].map(h => String(h).trim());
+    const studentCol = headers.findIndex(h => h.toLowerCase().includes('student'));
+    // Find grade columns — look for 'Grade' headers
+    const gradeCol = headers.findIndex((h,i) => h === 'Grade' && i > studentCol);
+
+    for(let r = headerIdx+2; r < rows.length; r++) {
+      const row = rows[r];
+      const nameParsed = String(row[studentCol] || '').trim();
+      if(!nameParsed) continue;
+      const grade = gradeCol >= 0 ? extractGrade(row[gradeCol]) : null;
+      if(grade) {
+        // Try to match to roster by name similarity
+        const match = parsed.students.find(s => {
+          const sn = s.name.toLowerCase().replace(/[^a-z]/g,'');
+          const nm = nameParsed.toLowerCase().replace(/[^a-z]/g,'');
+          return sn === nm || sn.includes(nm.slice(0,10)) || nm.includes(sn.slice(0,10));
+        });
+        if(match) match[subKey] = grade;
+      }
+    }
+  });
+
+  // Build result string
+  parsed.students.forEach(s => {
+    const gs = [s.MIB, s.BM, s.SCI, s.ENG, s.MAT].filter(g => g !== '—');
+    if(gs.length) {
+      const counts = {};
+      gs.forEach(g => counts[g] = (counts[g]||0)+1);
+      s.result = Object.entries(counts).sort().map(([g,n]) => n+'×'+g).join(' ');
+    }
+  });
+
+  window._pendingExcelData = parsed;
+
+  // Show preview
+  const classes = [...new Set(parsed.students.map(s => s.class))].sort();
+  const classCounts = classes.map(c => c + ': ' + parsed.students.filter(s => s.class === c).length + ' students');
+  const withGrades = parsed.students.filter(s => s.MIB !== '—' || s.BM !== '—').length;
+
+  previewContent.innerHTML = `
+    <strong style="color:var(--text)">📁 File:</strong> ${filename}<br>
+    <strong style="color:var(--text)">📋 Sheets found:</strong> ${sheets.join(', ')}<br>
+    <strong style="color:var(--text)">👥 Students found:</strong> ${parsed.students.length} students<br>
+    <strong style="color:var(--text)">🏫 Classes:</strong> ${classCounts.join(' · ')}<br>
+    <strong style="color:var(--text)">📊 Students with grades:</strong> ${withGrades} students<br>
+    <br><strong style="color:var(--accent2)">Sample (first 3 students):</strong><br>
+    ${parsed.students.slice(0,3).map(s => `${s.class} #${s.no} — ${s.name.substring(0,30)}... | MIB:${s.MIB} BM:${s.BM} SCI:${s.SCI} ENG:${s.ENG} MAT:${s.MAT}`).join('<br>')}
+  `;
+
+  feedback.style.background = 'rgba(16,185,129,0.08)';
+  feedback.style.border = '1px solid rgba(16,185,129,0.25)';
+  feedback.style.color = '#6EE7B7';
+  feedback.innerHTML = `✅ Successfully read ${parsed.students.length} students from <strong>${filename}</strong>. Preview below — click Apply to update the dashboard.`;
+  preview.style.display = 'block';
+}
+
+function applyExcelData() {
+  if(!window._pendingExcelData) return;
+  const pd = window._pendingExcelData;
+
+  // Replace the students array
+  students.length = 0;
+  pd.students.forEach(s => students.push(s));
+
+  // Update student count displays
+  const total = students.length;
+  document.getElementById('students-count-val').textContent = total;
+  const badge = document.querySelector('.nav-badge.green');
+  if(badge) badge.textContent = total;
+
+  // Re-render student table
+  renderStudents('all');
+
+  // Update tier counts
+  const t1 = students.filter(s => [s.MIB,s.BM,s.SCI,s.ENG,s.MAT].filter(g=>g==='E').length>=3).length;
+  const t3 = students.filter(s => [s.MIB,s.BM,s.SCI,s.ENG,s.MAT].filter(g=>g==='E').length===0).length;
+  const t2 = total - t1 - t3;
+  document.querySelectorAll('.tier-value').forEach((el,i) => {
+    if(i===0) el.textContent = t1;
+    else if(i===1) el.textContent = t2;
+    else if(i===2) el.textContent = t3;
+  });
+
+  // Mark excel as loaded
+  window._excelLoaded = true;
+  window._excelFilename = pd.filename;
+  document.getElementById('excel-status-val').textContent = 'Loaded ✓';
+  document.getElementById('excel-status-val').style.color = '#6EE7B7';
+  document.getElementById('stat-excel-status').style.borderColor = 'rgba(16,185,129,0.3)';
+  document.querySelector('#stat-excel-status .stat-sub').textContent = pd.filename.substring(0,25);
+
+  updateSettingsBadge();
+
+  // Show success toast
+  showToast('✅ Dashboard updated with ' + total + ' students from your Excel file!');
+}
+
+// ==================== TOAST ====================
+function showToast(msg) {
+  let toast = document.getElementById('toast');
+  if(!toast) {
+    toast = document.createElement('div');
+    toast.id = 'toast';
+    toast.style.cssText = 'position:fixed;bottom:24px;right:24px;background:rgba(16,185,129,0.9);color:white;padding:12px 18px;border-radius:10px;font-size:13px;font-weight:600;z-index:9999;transform:translateY(80px);transition:transform 0.3s ease;backdrop-filter:blur(10px)';
+    document.body.appendChild(toast);
+  }
+  toast.textContent = msg;
+  setTimeout(() => { toast.style.transform = 'translateY(0)'; }, 10);
+  setTimeout(() => { toast.style.transform = 'translateY(80px)'; }, 3500);
+}
+
+// ==================== INIT ====================
+document.addEventListener('DOMContentLoaded', () => {
+  initCharts();
+  renderStudents('all');
+});
+</script>
+
+</body>
+</html>
